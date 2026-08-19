@@ -1,0 +1,10 @@
+{
+  "description": "Create stunning wedding invitations with a Telugu theme, offering a beautiful and user-friendly experience for couples planning their special day.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
