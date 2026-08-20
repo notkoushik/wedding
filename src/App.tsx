@@ -12,6 +12,7 @@ import { WishesWall } from './components/wishes/WishesWall'
 import { RsvpSection } from './components/rsvp/RsvpSection'
 import { Footer } from './components/common/Footer'
 import { AdminDashboard } from './components/admin/AdminDashboard'
+import { PetalShower } from './components/common/PetalShower'
 
 export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
@@ -44,6 +45,9 @@ export default function App() {
 
       {/* Floating Traditional Ambient Music Player */}
       <MusicPlayer />
+
+      {/* 🌸 Interactive 3D Turmeric & Rose Petal Shower Celebration Effect */}
+      <PetalShower />
 
       {/* Grand Royal Hero Section */}
       <HeroSection />

@@ -61,6 +61,7 @@ export function RsvpSection() {
     }
 
     window.dispatchEvent(new Event('wedding_data_updated'))
+    window.dispatchEvent(new Event('trigger_petal_shower'))
     setLoading(false)
     setSubmitted(true)
   }

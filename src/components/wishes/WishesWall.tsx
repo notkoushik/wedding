@@ -237,6 +237,7 @@ export function WishesWall() {
     setWishes(updated)
     localStorage.setItem('wedding_wishes', JSON.stringify(updated))
     window.dispatchEvent(new Event('wedding_data_updated'))
+    window.dispatchEvent(new Event('trigger_petal_shower'))
 
     // Reset Form
     setForm({ name: '', relation: '', location: '', message: '', videoUrl: '' })
