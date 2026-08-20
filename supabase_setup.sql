@@ -61,13 +61,14 @@ CREATE TABLE IF NOT EXISTS public.guest_photos (
     name TEXT NOT NULL,
     caption TEXT,
     photo_url TEXT NOT NULL,
-    likes INT DEFAULT 1
+    likes INT DEFAULT 1,
+    is_hidden BOOLEAN DEFAULT false
 );
 
 ALTER TABLE public.guest_photos ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read guest_photos" ON public.guest_photos FOR SELECT USING (true);
 CREATE POLICY "Allow public insert guest_photos" ON public.guest_photos FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update guest_photos likes" ON public.guest_photos FOR UPDATE USING (true);
+CREATE POLICY "Allow public update guest_photos" ON public.guest_photos FOR UPDATE USING (true);
 
 -- 6. Setup Storage Bucket for Audio Voice Notes, Videos, and Photos
 -- (Go to Storage in Supabase -> Create bucket named: "wedding-media" with Public Access = ON)

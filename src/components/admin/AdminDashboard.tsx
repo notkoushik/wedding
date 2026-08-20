@@ -6,6 +6,7 @@ import {
   deleteLiveRsvp,
   deleteLiveWish,
   deleteGuestPhoto,
+  toggleHideGuestPhoto,
   type RsvpRecord,
   type GuestPhotoItem,
 } from '../../lib/supabase'
@@ -30,6 +31,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'rsvps' | 'photos' | 'media'>('rsvps')
   const [rsvpFilter, setRsvpFilter] = useState<'all' | 'yes' | 'maybe' | 'no'>('all')
+  const [photoFilter, setPhotoFilter] = useState<'all' | 'visible' | 'hidden'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<GuestPhotoItem | null>(null)
 
@@ -53,7 +55,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     const [liveRsvps, liveWishes, livePhotos] = await Promise.all([
       fetchLiveRsvps(),
       fetchLiveWishes(weddingData.initialWishes),
-      fetchGuestPhotos(),
+      fetchGuestPhotos(true), // Load all photos including hidden for Admin
     ])
     setRsvps(liveRsvps)
     setWishes(liveWishes)
@@ -97,6 +99,8 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     .reduce((sum, r) => sum + (parseInt(r.guests, 10) || 1), 0)
 
   const voiceNotesCount = wishes.filter((w) => Boolean(w.audioUrl)).length
+  const hiddenPhotosCount = guestPhotos.filter((p) => p.is_hidden).length
+  const visiblePhotosCount = guestPhotos.filter((p) => !p.is_hidden).length
 
   // CSV Export for RSVPs
   const exportToCSV = () => {
@@ -155,9 +159,21 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     }
   }
 
+  // 🙈 Hide / Unhide Photo Toggle Action
+  const handleToggleHide = async (photoId: string, currentlyHidden?: boolean) => {
+    const nextHiddenState = !currentlyHidden
+    await toggleHideGuestPhoto(photoId, nextHiddenState)
+    setGuestPhotos((prev) =>
+      prev.map((p) => (p.id === photoId ? { ...p, is_hidden: nextHiddenState } : p))
+    )
+    if (selectedPhotoPreview?.id === photoId) {
+      setSelectedPhotoPreview((prev) => (prev ? { ...prev, is_hidden: nextHiddenState } : null))
+    }
+  }
+
   // 🗑️ Delete Guest Photo Action
   const handleDeletePhoto = async (photoId: string) => {
-    if (confirm('Are you sure you want to delete this guest photo from the wedding album?')) {
+    if (confirm('Are you sure you want to permanently delete this guest photo?')) {
       await deleteGuestPhoto(photoId)
       setGuestPhotos((prev) => prev.filter((p) => p.id !== photoId))
       if (selectedPhotoPreview?.id === photoId) {
@@ -273,7 +289,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                 <p className="font-display text-[10.5px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
                   📸 Guest Snaps
                 </p>
-                <p className="text-[9px] text-[#7a4a4a]">అతిథుల ఫోటోలు</p>
+                <p className="text-[9px] text-[#7a4a4a]">{visiblePhotosCount} Live · {hiddenPhotosCount} Hidden</p>
               </div>
 
               <div className="rounded-2xl bg-white border border-gold/35 p-3.5 shadow-sm text-center">
@@ -432,16 +448,33 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
               </div>
             )}
 
-            {/* ── Tab 2: 📸 Guest Photos Moderation ── */}
+            {/* ── Tab 2: 📸 Guest Photos Moderation & Hide Access ── */}
             {activeTab === 'photos' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-display text-xs text-[#5c0a0a] font-semibold">
-                    Manage and moderate all guest-uploaded photos. Delete any unwanted or duplicate photos with 1 click.
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5">
+                    {[
+                      { id: 'all', label: `All (${guestPhotos.length})` },
+                      { id: 'visible', label: `🟢 Public (${visiblePhotosCount})` },
+                      { id: 'hidden', label: `🙈 Hidden (${hiddenPhotosCount})` },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setPhotoFilter(tab.id as any)}
+                        className={`px-3 py-1 rounded-full text-[11px] font-display font-semibold transition-all ${
+                          photoFilter === tab.id
+                            ? 'bg-gold/30 text-crimson font-bold shadow-xs'
+                            : 'text-[#7a4a4a] hover:bg-gold/10'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="font-display text-xs text-[#5c0a0a] italic">
+                    💡 Hiding a photo removes it from the public gallery while keeping it safely preserved in your private album.
                   </p>
-                  <span className="text-xs font-display text-gold-dark font-bold">
-                    {guestPhotos.length} Photos in Album
-                  </span>
                 </div>
 
                 {guestPhotos.length === 0 ? (
@@ -456,56 +489,93 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                    {guestPhotos.map((photo) => (
-                      <div
-                        key={photo.id}
-                        className="group relative rounded-2xl overflow-hidden bg-white border border-gold/40 shadow-sm flex flex-col justify-between"
-                      >
+                    {guestPhotos
+                      .filter((photo) => {
+                        if (photoFilter === 'visible') return !photo.is_hidden
+                        if (photoFilter === 'hidden') return photo.is_hidden
+                        return true
+                      })
+                      .map((photo) => (
                         <div
-                          className="relative aspect-square cursor-pointer overflow-hidden bg-[#fdf6e8]"
-                          onClick={() => setSelectedPhotoPreview(photo)}
+                          key={photo.id}
+                          className={`group relative rounded-2xl overflow-hidden bg-white border shadow-sm flex flex-col justify-between transition-all ${
+                            photo.is_hidden ? 'border-amber-400/80 bg-amber-50/20' : 'border-gold/40'
+                          }`}
                         >
-                          <img
-                            src={photo.photo_url}
-                            alt={photo.caption || photo.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
+                          <div
+                            className="relative aspect-square cursor-pointer overflow-hidden bg-[#fdf6e8]"
+                            onClick={() => setSelectedPhotoPreview(photo)}
+                          >
+                            <img
+                              src={photo.photo_url}
+                              alt={photo.caption || photo.name}
+                              className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
+                                photo.is_hidden ? 'opacity-70 grayscale-30' : ''
+                              }`}
+                            />
+                            {/* Status Badge */}
+                            <div className="absolute top-2 left-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md ${
+                                  photo.is_hidden
+                                    ? 'bg-amber-500 text-white'
+                                    : 'bg-green-600 text-white'
+                                }`}
+                              >
+                                {photo.is_hidden ? '🙈 Hidden from Public' : '🟢 Public'}
+                              </span>
+                            </div>
+                          </div>
 
-                        <div className="p-2.5 space-y-1 bg-white">
-                          <p className="font-display font-bold text-crimson text-xs truncate">
-                            {photo.name}
-                          </p>
-                          {photo.caption && (
-                            <p className="font-body text-[11px] text-[#5c0a0a] line-clamp-1 italic">
-                              "{photo.caption}"
-                            </p>
-                          )}
-                          <div className="flex items-center justify-between pt-1.5 border-t border-gold/15">
-                            <span className="text-[10px] text-[#7a4a4a]">❤️ {photo.likes || 1} Likes</span>
-                            <div className="flex items-center gap-1.5">
-                              <a
-                                href={photo.photo_url}
-                                download={`guest_photo_${photo.name}.webp`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[10px] text-gold-dark hover:underline font-bold"
-                                title="Download Photo"
-                              >
-                                ⬇
-                              </a>
+                          <div className="p-2.5 space-y-1.5 bg-white">
+                            <div>
+                              <p className="font-display font-bold text-crimson text-xs truncate">
+                                {photo.name}
+                              </p>
+                              {photo.caption && (
+                                <p className="font-body text-[11px] text-[#5c0a0a] line-clamp-1 italic">
+                                  "{photo.caption}"
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Moderation Controls: Hide/Unhide & Delete */}
+                            <div className="flex items-center justify-between pt-1.5 border-t border-gold/15">
                               <button
-                                onClick={() => handleDeletePhoto(photo.id)}
-                                className="px-2 py-0.5 rounded-md bg-red-100 hover:bg-red-200 text-red-700 text-[10px] font-bold transition-colors"
-                                title="Delete Unwanted Photo"
+                                onClick={() => handleToggleHide(photo.id, photo.is_hidden)}
+                                className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all flex items-center gap-1 ${
+                                  photo.is_hidden
+                                    ? 'bg-green-100 hover:bg-green-200 text-green-800'
+                                    : 'bg-amber-100 hover:bg-amber-200 text-amber-800'
+                                }`}
+                                title={photo.is_hidden ? 'Make photo visible in public gallery' : 'Hide photo from public gallery'}
                               >
-                                🗑️ Delete
+                                <span>{photo.is_hidden ? '👁️ Unhide' : '🙈 Hide'}</span>
                               </button>
+
+                              <div className="flex items-center gap-1">
+                                <a
+                                  href={photo.photo_url}
+                                  download={`guest_photo_${photo.name}.webp`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1 text-gold-dark hover:text-crimson font-bold text-[11px]"
+                                  title="Download Photo"
+                                >
+                                  ⬇
+                                </a>
+                                <button
+                                  onClick={() => handleDeletePhoto(photo.id)}
+                                  className="px-1.5 py-0.5 rounded bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold"
+                                  title="Permanently Delete Photo"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </div>
@@ -605,11 +675,22 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
           className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 cursor-pointer"
           onClick={() => setSelectedPhotoPreview(null)}
         >
-          <div className="relative max-w-lg w-full bg-[#fdfaf2] p-4 rounded-3xl border-2 border-gold space-y-3 cursor-default">
+          <div className="relative max-w-lg w-full bg-[#fdfaf2] p-5 rounded-3xl border-2 border-gold space-y-3 cursor-default">
             <div className="flex items-center justify-between pb-2 border-b border-gold/30">
-              <h4 className="font-display font-bold text-crimson text-sm">
-                Photo by {selectedPhotoPreview.name}
-              </h4>
+              <div>
+                <h4 className="font-display font-bold text-crimson text-sm">
+                  Photo by {selectedPhotoPreview.name}
+                </h4>
+                <span
+                  className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 ${
+                    selectedPhotoPreview.is_hidden
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}
+                >
+                  {selectedPhotoPreview.is_hidden ? '🙈 Currently Hidden from Public Gallery' : '🟢 Publicly Visible'}
+                </span>
+              </div>
               <button
                 onClick={() => setSelectedPhotoPreview(null)}
                 className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold"
@@ -620,7 +701,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
             <img
               src={selectedPhotoPreview.photo_url}
               alt={selectedPhotoPreview.name}
-              className="w-full max-h-[60vh] object-contain rounded-2xl shadow-md mx-auto"
+              className="w-full max-h-[55vh] object-contain rounded-2xl shadow-md mx-auto"
             />
             {selectedPhotoPreview.caption && (
               <p className="font-body text-xs text-[#5c0a0a] text-center italic">
@@ -628,20 +709,33 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
               </p>
             )}
             <div className="flex items-center justify-between pt-2 border-t border-gold/20">
-              <a
-                href={selectedPhotoPreview.photo_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-1.5 rounded-full bg-gold/20 text-crimson text-xs font-display font-semibold"
-              >
-                ⬇ Open Full Res
-              </a>
               <button
-                onClick={() => handleDeletePhoto(selectedPhotoPreview.id)}
-                className="px-4 py-1.5 rounded-full bg-red-600 text-white text-xs font-display font-bold hover:bg-red-700"
+                onClick={() => handleToggleHide(selectedPhotoPreview.id, selectedPhotoPreview.is_hidden)}
+                className={`px-4 py-2 rounded-full text-xs font-display font-bold transition-all ${
+                  selectedPhotoPreview.is_hidden
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-amber-500 text-white hover:bg-amber-600'
+                }`}
               >
-                🗑️ Delete Photo
+                {selectedPhotoPreview.is_hidden ? '👁️ Unhide (Show to Public)' : '🙈 Hide from Public Gallery'}
               </button>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={selectedPhotoPreview.photo_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-full bg-gold/20 text-crimson text-xs font-display font-semibold"
+                >
+                  ⬇ Full Res
+                </a>
+                <button
+                  onClick={() => handleDeletePhoto(selectedPhotoPreview.id)}
+                  className="px-3 py-1.5 rounded-full bg-red-600 text-white text-xs font-display font-bold hover:bg-red-700"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>

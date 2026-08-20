@@ -29,6 +29,7 @@ export interface GuestPhotoItem {
   photo_url: string
   created_at?: string
   likes: number
+  is_hidden?: boolean
 }
 
 // ── 1. Storage Upload Helper (Voice Notes, Videos, Photos) ──
@@ -233,28 +234,35 @@ export async function deleteLiveWish(id: string): Promise<boolean> {
 }
 
 // ── 4. Guest Photos Collector Helpers ──
-export async function fetchGuestPhotos(): Promise<GuestPhotoItem[]> {
+export async function fetchGuestPhotos(includeHidden = false): Promise<GuestPhotoItem[]> {
   const localSaved: GuestPhotoItem[] = JSON.parse(localStorage.getItem('wedding_guest_photos') || '[]')
 
   if (!supabase) {
-    return localSaved
+    return includeHidden ? localSaved : localSaved.filter((p) => !p.is_hidden)
   }
 
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('guest_photos')
       .select('*')
       .order('created_at', { ascending: false })
 
+    if (!includeHidden) {
+      query = query.or('is_hidden.is.null,is_hidden.eq.false')
+    }
+
+    const { data, error } = await query
+
     if (error || !data || data.length === 0) {
-      return localSaved
+      return includeHidden ? localSaved : localSaved.filter((p) => !p.is_hidden)
     }
 
     const liveIds = new Set(data.map((p: any) => p.id))
-    const merged = [...data, ...localSaved.filter((p) => !liveIds.has(p.id))]
+    const localFiltered = includeHidden ? localSaved : localSaved.filter((p) => !p.is_hidden)
+    const merged = [...data, ...localFiltered.filter((p) => !liveIds.has(p.id))]
     return merged
   } catch (err) {
-    return localSaved
+    return includeHidden ? localSaved : localSaved.filter((p) => !p.is_hidden)
   }
 }
 
@@ -285,6 +293,7 @@ export async function submitGuestPhoto(
     caption: caption.trim() || undefined,
     photo_url: photoUrl,
     likes: 1,
+    is_hidden: false,
   }
 
   let createdItem: GuestPhotoItem | null = null
@@ -327,6 +336,27 @@ export async function likeGuestPhoto(photoId: string): Promise<boolean> {
       await supabase.from('guest_photos').update({ likes: (data.likes || 0) + 1 }).eq('id', photoId)
     }
     return true
+  } catch {
+    return false
+  }
+}
+
+export async function toggleHideGuestPhoto(photoId: string, hide: boolean): Promise<boolean> {
+  // Update local storage
+  const existing: GuestPhotoItem[] = JSON.parse(localStorage.getItem('wedding_guest_photos') || '[]')
+  const updatedLocal = existing.map((p) => (p.id === photoId ? { ...p, is_hidden: hide } : p))
+  localStorage.setItem('wedding_guest_photos', JSON.stringify(updatedLocal))
+  window.dispatchEvent(new Event('wedding_photos_updated'))
+
+  if (!supabase) return true
+
+  try {
+    const { error } = await supabase
+      .from('guest_photos')
+      .update({ is_hidden: hide })
+      .eq('id', photoId)
+
+    return !error
   } catch {
     return false
   }
