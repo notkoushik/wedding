@@ -87,6 +87,14 @@ export function TeluguRitualsSection() {
                 {/* ── Story Narrative ── */}
                 <div className="w-full md:w-7/12 text-center md:text-left space-y-3">
                   
+                  {/* Special Badge for Jeelakarra Bellam */}
+                  {ritual.id === 'jeelakarra-bellam' && (
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#5c0a0a] text-gold-light text-[10px] sm:text-[11px] font-display font-bold uppercase tracking-widest shadow-md">
+                      <span>🪔</span>
+                      <span>ప్రధాన సుముహూర్త ఘట్టం · Auspicious Climax (11:59 PM)</span>
+                    </div>
+                  )}
+
                   {/* Step Index & Shloka */}
                   <div className="flex items-center justify-center md:justify-start gap-2 text-xs">
                     <span className="font-display font-bold text-crimson tracking-widest uppercase">
@@ -100,7 +108,7 @@ export function TeluguRitualsSection() {
 
                   {/* Title & English Subtitle */}
                   <div>
-                    <h3 className="font-telugu font-bold text-crimson text-2xl sm:text-3xl md:text-3xl">
+                    <h3 className={`font-telugu font-bold text-2xl sm:text-3xl md:text-4xl ${ritual.id === 'jeelakarra-bellam' ? 'text-[#7a0c0c] font-black' : 'text-crimson'}`}>
                       {ritual.titleTelugu}
                     </h3>
                     <p className="font-display font-medium text-[#7a4a4a] text-xs sm:text-[13px] tracking-wider uppercase">

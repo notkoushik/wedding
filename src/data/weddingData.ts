@@ -6,6 +6,7 @@ import originalCardImg from '../../Card/a45d3dae-4b4b-4761-ace0-49c629b52d58.png
 import gorentakuImg from '../assets/aestatics/gorentaku.jpg'
 import vrathamImg from '../assets/aestatics/vratham.jpg'
 import eadurukoluImg from '../assets/aestatics/eadurukolu.jpg'
+import jeelakarraBellamImg from '../assets/aestatics/Jeelakarra Bellam.jpg'
 import varamaluImg from '../assets/aestatics/varamalu.jpg'
 import thalambraluImg from '../assets/aestatics/thalambraly.jpg'
 import sapthipadhiImg from '../assets/aestatics/sapthipadhi.jpg'
@@ -233,8 +234,30 @@ export const weddingData: WeddingSiteConfig = {
       image: eadurukoluImg,
     },
     {
-      id: 'varamalu',
+      id: 'jeelakarra-bellam',
       number: '04',
+      titleTelugu: 'జీలకర్ర బెల్లం',
+      titleEnglish: 'Jeelakarra Bellam — The Crown Sumuhurtham Moment',
+      shloka: 'సుముహూర్తే సావధాన · చిరంజీవ సుఖీభవ',
+      significanceTelugu:
+        'తెలుగు వివాహ మహోత్సవంలో ఇదే అత్యంత ప్రధానమైన పవిత్ర సుముహూర్త ఘట్టం. నిర్ణయించిన శుభ ముహూర్త వేళ (రాత్రి 11:59 గంటలకు) తెర అడ్డుగా ఉండగా, వధూవరులు ఒకరి శిరస్సుపై ఒకరు జీలకర్ర-బెల్లం మిశ్రమాన్ని ఉంచుతారు. చేదు-తీపి కలగలిసిన జీవితంలో ఇద్దరి మనస్సులు విడదీయరాని విధంగా ఒకటవుతాయనేది దీని పరమార్థం.',
+      significanceEnglish:
+        'The absolute defining and most sacred climax of a Telugu wedding! At the precise astrological Sumuhurtham (Night 11:59 PM), while a sacred silk curtain (Therasila) still separates them, the bride and groom simultaneously place a paste of Cumin seeds (Jeelakarra) and Jaggery (Bellam) on each other’s crown (Sahasrara Chakra). The bitter cumin and sweet jaggery become indivisibly united, symbolizing that in all joys and hardships of life, their souls and destinies are fused forever.',
+      culturalDetailsTelugu: [
+        'సుముహూర్త నిర్ణీత క్షణంలో వివాహ బంధాన్ని సుస్థిరం చేసే పరమ పవిత్ర క్షణం',
+        'తెర తొలగించి వధూవరులు తొలిసారి ఒకరినొకరు కనులారా చూసుకునే మధుర వేళ',
+        'జీవితంలోని కష్టసుఖాలను సమానంగా పంచుకుంటామనే శాశ్వత ఐక్యతకు సంకేతం',
+      ],
+      culturalDetailsEnglish: [
+        'The exact astrological moment that seals the spiritual and Vedic knot of marriage',
+        'The silk curtain is lowered immediately after, allowing them to gaze upon each other as lifelong partners',
+        'Symbolizes positive bio-energy transmission and psychological oneness between husband and wife',
+      ],
+      image: jeelakarraBellamImg,
+    },
+    {
+      id: 'varamalu',
+      number: '05',
       titleTelugu: 'వరమాల',
       titleEnglish: 'Varamala — Exchange of Floral Garlands',
       shloka: 'సమగ్ర హృదయైక్యమ్ · పరస్పర వరణం',
@@ -256,7 +279,7 @@ export const weddingData: WeddingSiteConfig = {
     },
     {
       id: 'thalambralu',
-      number: '05',
+      number: '06',
       titleTelugu: 'తలంబ్రాలు',
       titleEnglish: 'Talambralu — Sacred Shower of Pearls & Turmeric',
       shloka: 'ధాన్య లక్ష్మీ ప్రసన్నాస్తు · ఆనంద వర్షం',
@@ -278,7 +301,7 @@ export const weddingData: WeddingSiteConfig = {
     },
     {
       id: 'sapthipadhi',
-      number: '06',
+      number: '07',
       titleTelugu: 'సప్తపది',
       titleEnglish: 'Saptapadi — Seven Sacred Steps Around Agni',
       shloka: 'సఖా సప్తపదా భవ · సఖ్యంతే గమేయమ్',
