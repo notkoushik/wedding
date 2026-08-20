@@ -54,7 +54,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 5. Setup Storage Bucket for Audio Voice Notes, Videos, and Photos
+-- 5. Create Live Guest Photo Stream Table
+CREATE TABLE IF NOT EXISTS public.guest_photos (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT now(),
+    name TEXT NOT NULL,
+    caption TEXT,
+    photo_url TEXT NOT NULL,
+    likes INT DEFAULT 1
+);
+
+ALTER TABLE public.guest_photos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read guest_photos" ON public.guest_photos FOR SELECT USING (true);
+CREATE POLICY "Allow public insert guest_photos" ON public.guest_photos FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update guest_photos likes" ON public.guest_photos FOR UPDATE USING (true);
+
+-- 6. Setup Storage Bucket for Audio Voice Notes, Videos, and Photos
 -- (Go to Storage in Supabase -> Create bucket named: "wedding-media" with Public Access = ON)
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('wedding-media', 'wedding-media', true)

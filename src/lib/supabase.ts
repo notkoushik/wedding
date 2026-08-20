@@ -22,6 +22,15 @@ export interface RsvpRecord {
   created_at?: string
 }
 
+export interface GuestPhotoItem {
+  id: string
+  name: string
+  caption?: string
+  photo_url: string
+  created_at?: string
+  likes: number
+}
+
 // ── 1. Storage Upload Helper (Voice Notes, Videos, Photos) ──
 export async function uploadWeddingMedia(
   file: Blob | File,
@@ -217,6 +226,116 @@ export async function deleteLiveWish(id: string): Promise<boolean> {
   if (!supabase) return true
   try {
     const { error } = await supabase.from('wishes').delete().eq('id', id)
+    return !error
+  } catch {
+    return false
+  }
+}
+
+// ── 4. Guest Photos Collector Helpers ──
+export async function fetchGuestPhotos(): Promise<GuestPhotoItem[]> {
+  const localSaved: GuestPhotoItem[] = JSON.parse(localStorage.getItem('wedding_guest_photos') || '[]')
+
+  if (!supabase) {
+    return localSaved
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('guest_photos')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error || !data || data.length === 0) {
+      return localSaved
+    }
+
+    const liveIds = new Set(data.map((p: any) => p.id))
+    const merged = [...data, ...localSaved.filter((p) => !liveIds.has(p.id))]
+    return merged
+  } catch (err) {
+    return localSaved
+  }
+}
+
+export async function submitGuestPhoto(
+  name: string,
+  caption: string,
+  compressedBlob: Blob
+): Promise<GuestPhotoItem | null> {
+  let photoUrl: string | null = null
+
+  if (supabase) {
+    photoUrl = await uploadWeddingMedia(compressedBlob, 'photos', 'webp')
+  }
+
+  // Fallback to data URL if offline/Supabase pending
+  if (!photoUrl) {
+    photoUrl = await new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.readAsDataURL(compressedBlob)
+    })
+  }
+
+  if (!photoUrl) return null
+
+  const photoPayload = {
+    name: name.trim() || 'Wedding Guest',
+    caption: caption.trim() || undefined,
+    photo_url: photoUrl,
+    likes: 1,
+  }
+
+  let createdItem: GuestPhotoItem | null = null
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('guest_photos')
+        .insert([photoPayload])
+        .select()
+        .single()
+
+      if (!error && data) {
+        createdItem = data
+      }
+    } catch (err) {
+      console.warn('Error inserting guest photo in Supabase:', err)
+    }
+  }
+
+  const result: GuestPhotoItem = createdItem || {
+    id: Date.now().toString(),
+    ...photoPayload,
+    created_at: new Date().toISOString(),
+  }
+
+  // Save to local storage cache
+  const existing: GuestPhotoItem[] = JSON.parse(localStorage.getItem('wedding_guest_photos') || '[]')
+  localStorage.setItem('wedding_guest_photos', JSON.stringify([result, ...existing]))
+  window.dispatchEvent(new Event('wedding_photos_updated'))
+
+  return result
+}
+
+export async function likeGuestPhoto(photoId: string): Promise<boolean> {
+  if (!supabase) return false
+  try {
+    const { data } = await supabase.from('guest_photos').select('likes').eq('id', photoId).single()
+    if (data) {
+      await supabase.from('guest_photos').update({ likes: (data.likes || 0) + 1 }).eq('id', photoId)
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+export async function deleteGuestPhoto(photoId: string): Promise<boolean> {
+  if (!supabase) return true
+  try {
+    const { error } = await supabase.from('guest_photos').delete().eq('id', photoId)
     return !error
   } catch {
     return false
