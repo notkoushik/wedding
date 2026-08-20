@@ -60,6 +60,7 @@ export function RsvpSection() {
       })
     }
 
+    window.dispatchEvent(new Event('wedding_data_updated'))
     setLoading(false)
     setSubmitted(true)
   }

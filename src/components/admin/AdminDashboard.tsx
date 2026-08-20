@@ -58,6 +58,20 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       loadAdminData()
+
+      const handleUpdate = () => {
+        loadAdminData()
+      }
+
+      window.addEventListener('wedding_data_updated', handleUpdate)
+      window.addEventListener('storage', handleUpdate)
+      window.addEventListener('focus', handleUpdate)
+
+      return () => {
+        window.removeEventListener('wedding_data_updated', handleUpdate)
+        window.removeEventListener('storage', handleUpdate)
+        window.removeEventListener('focus', handleUpdate)
+      }
     }
   }, [isOpen, isAuthenticated])
 

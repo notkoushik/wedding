@@ -236,6 +236,7 @@ export function WishesWall() {
     const updated = [newWish, ...wishes]
     setWishes(updated)
     localStorage.setItem('wedding_wishes', JSON.stringify(updated))
+    window.dispatchEvent(new Event('wedding_data_updated'))
 
     // Reset Form
     setForm({ name: '', relation: '', location: '', message: '', videoUrl: '' })

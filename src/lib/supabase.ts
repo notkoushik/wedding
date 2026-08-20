@@ -57,7 +57,11 @@ export async function uploadWeddingMedia(
 
 // ── 2. Wishes Database Helpers ──
 export async function fetchLiveWishes(fallbackWishes: WishItem[]): Promise<WishItem[]> {
-  if (!supabase) return fallbackWishes
+  const localSaved: WishItem[] = JSON.parse(localStorage.getItem('wedding_wishes') || '[]')
+
+  if (!supabase) {
+    return localSaved.length > 0 ? localSaved : fallbackWishes
+  }
 
   try {
     const { data, error } = await supabase
@@ -66,10 +70,10 @@ export async function fetchLiveWishes(fallbackWishes: WishItem[]): Promise<WishI
       .order('created_at', { ascending: false })
 
     if (error || !data || data.length === 0) {
-      return fallbackWishes
+      return localSaved.length > 0 ? localSaved : fallbackWishes
     }
 
-    return data.map((item: any) => ({
+    const liveItems: WishItem[] = data.map((item: any) => ({
       id: item.id,
       name: item.name,
       relation: item.relation || 'Well Wisher',
@@ -82,9 +86,14 @@ export async function fetchLiveWishes(fallbackWishes: WishItem[]): Promise<WishI
       timeAgo: formatTimeAgo(new Date(item.created_at || Date.now())),
       likes: item.likes || 0,
     }))
+
+    // Merge live with any local-only items
+    const liveIds = new Set(liveItems.map((w) => w.id))
+    const merged = [...liveItems, ...localSaved.filter((w) => !liveIds.has(w.id))]
+    return merged.length > 0 ? merged : fallbackWishes
   } catch (err) {
     console.warn('Error fetching wishes from Supabase:', err)
-    return fallbackWishes
+    return localSaved.length > 0 ? localSaved : fallbackWishes
   }
 }
 
@@ -170,8 +179,10 @@ export async function submitLiveRsvp(rsvp: RsvpRecord): Promise<boolean> {
 }
 
 export async function fetchLiveRsvps(): Promise<RsvpRecord[]> {
+  const localSaved: RsvpRecord[] = JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+
   if (!supabase) {
-    return JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+    return localSaved
   }
 
   try {
@@ -180,13 +191,15 @@ export async function fetchLiveRsvps(): Promise<RsvpRecord[]> {
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (error || !data) {
-      return JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+    if (error || !data || data.length === 0) {
+      return localSaved
     }
 
-    return data
+    const livePhones = new Set(data.map((r: any) => r.phone))
+    const merged = [...data, ...localSaved.filter((r) => !livePhones.has(r.phone))]
+    return merged
   } catch (err) {
-    return JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+    return localSaved
   }
 }
 
