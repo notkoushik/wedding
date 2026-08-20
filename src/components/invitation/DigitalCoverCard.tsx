@@ -1,6 +1,9 @@
 import React from 'react'
+import { weddingData } from '../../data/weddingData'
 
 export function DigitalCoverCard() {
+  const { compliments } = weddingData
+
   return (
     <svg
       viewBox="0 0 380 520"
@@ -137,7 +140,7 @@ export function DigitalCoverCard() {
 
       {/* Footer Text */}
       <text x="190" y="508" textAnchor="middle" fontSize="7.5" fill="#9b7b1b" opacity="0.75" fontFamily="'Playfair Display',serif" fontStyle="italic" letterSpacing="2">
-        WITH BEST COMPLIMENTS · FAMILIES AND NEAR &amp; DEAR
+        {compliments.en.toUpperCase()}
       </text>
     </svg>
   )

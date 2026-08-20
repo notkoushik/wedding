@@ -4,8 +4,7 @@ import {
   createGoogleCalendarUrl,
   downloadIcsFile,
 } from '../../lib/calendar'
-
-const WEDDING_DATE = new Date('2026-08-22T23:59:00+05:30')
+import { weddingData } from '../../data/weddingData'
 
 function useCountdown(target: Date) {
   const calc = () => {
@@ -23,17 +22,20 @@ function useCountdown(target: Date) {
     setT(calc())
     const id = setInterval(() => setT(calc()), 1000)
     return () => clearInterval(id)
-  }, [])
+  }, [target])
   return t
 }
 
 export function HeroSection() {
-  const t = useCountdown(WEDDING_DATE)
+  const { couple, muhurtham, venues, parents } = weddingData
+  const t = useCountdown(muhurtham.dateTime)
   const [calOpen, setCalOpen] = useState(false)
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const primaryVenue = venues[0]
 
   return (
     <section
@@ -79,13 +81,13 @@ export function HeroSection() {
             className="font-telugu text-xs sm:text-sm font-semibold tracking-[0.25em]"
             style={{ color: '#9b7b1b' }}
           >
-            || శ్రీ గణేశాయ నమః · శ్రీ లక్ష్మీ నమః · శ్రీ వేంకటేశాయ నమః ||
+            {couple.sanskritHeader}
           </p>
           <p
             className="font-display text-[10px] sm:text-[11px] uppercase tracking-[0.4em] font-medium"
             style={{ color: 'rgba(155,123,27,0.65)' }}
           >
-            Turupada Family · Wedding Invitation
+            {couple.familyHeaderEn}
           </p>
         </div>
 
@@ -101,7 +103,7 @@ export function HeroSection() {
           className="font-telugu text-sm sm:text-base font-semibold"
           style={{ color: 'rgba(92,10,10,0.6)' }}
         >
-          శుభవివాహ ఆహ్వాన పత్రిక
+          {couple.familyHeaderTe}
         </p>
 
         {/* ── THE BIG NAMES ── */}
@@ -116,7 +118,7 @@ export function HeroSection() {
               lineHeight: 1.05,
             }}
           >
-            Mohan Praneeth
+            {couple.groom.nameEn}
           </h1>
 
           <div className="flex items-center justify-center gap-4 sm:gap-6 py-3 sm:py-4">
@@ -146,7 +148,7 @@ export function HeroSection() {
               lineHeight: 1.05,
             }}
           >
-            Leepika
+            {couple.bride.nameEn}
           </h1>
         </div>
 
@@ -155,7 +157,7 @@ export function HeroSection() {
           className="font-telugu text-sm sm:text-base font-semibold -mt-1"
           style={{ color: 'rgba(155,123,27,0.7)' }}
         >
-          మోహన్ ప్రణీత్ · లీపిక
+          {couple.groom.nameTe} · {couple.bride.nameTe}
         </p>
 
         {/* ── Ornamental SVG divider ── */}
@@ -176,20 +178,22 @@ export function HeroSection() {
             className="font-display font-bold tracking-[0.2em] uppercase text-sm sm:text-base"
             style={{ color: '#3d0808' }}
           >
-            Saturday · 22nd August 2026
+            {muhurtham.dateStringEn}
           </p>
           <p
             className="font-telugu text-xs sm:text-sm font-semibold"
             style={{ color: 'rgba(92,10,10,0.65)' }}
           >
-            సుముహూర్తం: రాత్రి 11:59 ని||లకు
+            సుముహూర్తం: {muhurtham.timeStringTe}
           </p>
-          <p
-            className="font-display italic text-xs sm:text-[13px]"
-            style={{ color: 'rgba(100,60,40,0.55)' }}
-          >
-            I Conventions, Chanda Nagar, Ameenpur · Hyderabad
-          </p>
+          {primaryVenue && (
+            <p
+              className="font-display italic text-xs sm:text-[13px]"
+              style={{ color: 'rgba(100,60,40,0.55)' }}
+            >
+              {primaryVenue.name}, {primaryVenue.landmark} · {primaryVenue.city}
+            </p>
+          )}
         </div>
 
         {/* ── Countdown Timer ── */}
@@ -317,7 +321,7 @@ export function HeroSection() {
             className="font-telugu text-[10px] sm:text-xs font-medium"
             style={{ color: 'rgba(92,10,10,0.45)' }}
           >
-            శ్రీ తురుపాడ రామకృష్ణ & శ్రీమతి విశాలాక్షి దంపతుల ఏకైక సుపుత్రుని వివాహ మహోత్సవము
+            {parents.groomParentsTe} {couple.groom.parentDetailsTe}
           </p>
           <p
             className="font-display italic text-[10px] sm:text-[11px]"

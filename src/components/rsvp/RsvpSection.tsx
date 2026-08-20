@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { SectionLabel, GoldDivider, GoldStrip } from '../common/GoldDivider'
 import { OrnateCard } from '../common/OrnateCard'
+import { weddingData } from '../../data/weddingData'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -19,6 +20,7 @@ function useInView(threshold = 0.1) {
 }
 
 export function RsvpSection() {
+  const { couple, muhurtham } = weddingData
   const [ref, visible] = useInView()
   const [form, setForm] = useState({
     name: '',
@@ -60,33 +62,36 @@ export function RsvpSection() {
       className="relative py-20 md:py-28 overflow-hidden"
       style={{
         background:
-          'radial-gradient(ellipse 90% 70% at 50% 50%, #5c0a0a 0%, #3d0808 60%, #220303 100%)',
+          'radial-gradient(ellipse 90% 70% at 50% 50%, #3d0808 0%, #220303 70%, #150202 100%)',
       }}
     >
-      <div className="absolute inset-0 fan-pattern opacity-25 pointer-events-none" />
+      <div className="absolute inset-0 fan-pattern opacity-20 pointer-events-none" />
       <div className="absolute top-0 inset-x-0 pointer-events-none">
         <GoldStrip />
       </div>
 
-      <div className="relative z-10 max-w-xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6">
         <div
           ref={ref}
           className={`transition-all duration-1000 ease-out ${
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
-          <SectionLabel title="RSVP" sub="Will You Join Us?" light />
+          <SectionLabel
+            title="Celebrate With Us"
+            sub="దయచేసి మీ రాకను తెలియజేయండి"
+            light
+          />
 
           {submitted ? (
-            <OrnateCard className="text-center py-12 px-6 sm:px-10 space-y-5 animate-fadeUp">
-              <div className="text-5xl animate-bounce">🌸</div>
-              <h3
-                className="font-calligraphy text-crimson-dark leading-none font-bold"
-                style={{ fontSize: 'clamp(2.4rem, 6vw, 3.2rem)' }}
-              >
+            <OrnateCard className="text-center py-10 space-y-5 animate-fadeUp">
+              <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-gold/15 border border-gold/40 text-3xl">
+                🌸
+              </div>
+              <h3 className="font-calligraphy text-crimson text-3xl sm:text-4xl font-bold">
                 Thank You, {form.name}!
               </h3>
-              <p className="font-body italic text-[#633a3a] text-sm leading-relaxed max-w-md mx-auto">
+              <p className="font-body text-[#633a3a] text-sm max-w-md mx-auto leading-relaxed">
                 Your response has been registered with joy. Your presence will make our special day truly memorable.
               </p>
               <p className="font-telugu text-gold-dark font-semibold text-sm">
@@ -104,17 +109,17 @@ export function RsvpSection() {
                   {form.events === 'both'
                     ? 'Both Wedding & Reception'
                     : form.events === 'wedding'
-                    ? 'Sumuhurtham (Hyderabad)'
-                    : 'Grand Reception (Vizag)'}
+                    ? 'Sumuhurtham'
+                    : 'Grand Reception'}
                 </p>
               </div>
 
               <div className="pt-2">
                 <p className="font-calligraphy text-crimson text-3xl leading-none">
-                  Mohan Praneeth &amp; Leepika
+                  {couple.namesCombinedEn}
                 </p>
                 <p className="font-display italic text-gold-dark text-xs mt-1">
-                  22nd August 2026
+                  {muhurtham.dateStringEn}
                 </p>
               </div>
 
@@ -183,12 +188,30 @@ export function RsvpSection() {
                       value={form.attendance}
                       onChange={(e) => setForm((f) => ({ ...f, attendance: e.target.value }))}
                     >
-                      <option value="yes">🌸 Joyfully Accept</option>
-                      <option value="maybe">⏳ Tentatively Accept</option>
-                      <option value="no">✉️ Regretfully Decline</option>
+                      <option value="yes">🌸 Joyfully Attending in Person</option>
+                      <option value="maybe">⏳ Tentatively Attending</option>
+                      <option value="no">✈️ Joining in Spirit from Afar (Cannot Attend)</option>
                     </select>
                   </div>
                 </div>
+
+                {form.attendance === 'no' && (
+                  <div className="rounded-2xl bg-gold/15 border border-gold/45 p-3.5 sm:p-4 text-center space-y-2 animate-fadeUp">
+                    <p className="font-telugu font-bold text-crimson text-xs sm:text-sm">
+                      దూరపు ఆత్మీయుల శుభాశీస్సులు 🎙️
+                    </p>
+                    <p className="font-body text-[#5c0a0a] text-xs leading-relaxed">
+                      We will miss you in person! You can record a warm voice blessing, share a video message, or upload a nostalgic photo for Mohan &amp; Leepika on the Blessings Wall.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('wishes')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="px-4 py-2 rounded-full bg-crimson text-gold-light text-xs font-display font-semibold hover:bg-crimson-dark shadow-sm transition-all"
+                    >
+                      🎙️ Record Voice / Video Blessing ➔
+                    </button>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -226,7 +249,7 @@ export function RsvpSection() {
                   </label>
                   <textarea
                     rows={3}
-                    placeholder="Your blessings, love and warm wishes for Mohan & Leepika..."
+                    placeholder={`Your blessings, love and warm wishes for ${couple.shortNamesEn}...`}
                     className={`${inputCls} resize-none`}
                     value={form.message}
                     onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}

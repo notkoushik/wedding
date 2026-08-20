@@ -1,7 +1,12 @@
 import React from 'react'
 import { GoldDivider } from '../common/GoldDivider'
+import { weddingData } from '../../data/weddingData'
 
 export function TeluguWeddingCard() {
+  const { couple, parents, muhurtham, venues, compliments } = weddingData
+  const weddingVenue = venues[0]
+  const receptionVenue = venues[1]
+
   return (
     <div
       className="relative rounded-[26px] p-2 transition-all duration-400 group h-full flex flex-col justify-between hover:-translate-y-1"
@@ -33,7 +38,7 @@ export function TeluguWeddingCard() {
           <div className="flex items-center justify-center gap-1.5">
             <span className="text-crimson text-xs">🪔</span>
             <p className="font-telugu font-bold text-crimson text-xs sm:text-sm tracking-widest">
-              శ్రీ రస్తు · శుభమస్తు · అవిఘ్నమస్తు
+              {couple.sanskritHeaderTe.replace(/\|\|/g, '').trim()}
             </p>
             <span className="text-crimson text-xs">🪔</span>
           </div>
@@ -51,17 +56,19 @@ export function TeluguWeddingCard() {
         {/* ── Main Invitation Title ── */}
         <div className="relative z-10 space-y-0.5">
           <h2 className="font-telugu font-bold text-crimson-dark text-lg sm:text-xl md:text-2xl tracking-wide">
-            తురుపాడ వారి పెండ్లి పిలుపు
+            {couple.familyHeaderTe}
           </h2>
-          <p className="font-telugu text-[9.5px] sm:text-[10px] text-[#7a4a4a]">
-            కీ॥శే॥ తురుపాడ రామినాయుడు, కీ॥శే॥ గుంట్రెడ్డి వెంకట జగన్నాధ నాయుడు గార్ల ఆశీస్సులతో...
-          </p>
+          {parents.ancestorsTe && (
+            <p className="font-telugu text-[9.5px] sm:text-[10px] text-[#7a4a4a]">
+              {parents.ancestorsTe}
+            </p>
+          )}
         </div>
 
         {/* ── Parents' Names ── */}
         <div className="relative z-10 py-1 px-3 rounded-lg bg-gold/10 border border-gold/25 inline-block mx-auto">
           <p className="font-telugu font-bold text-crimson text-xs sm:text-sm">
-            శ్రీ తురుపాడ రామకృష్ణ, శ్రీమతి విశాలాక్షి దంపతులు
+            {parents.groomParentsTe}
           </p>
           <p className="font-telugu font-semibold text-crimson-dark text-[10px] sm:text-[11px]">
             వ్రాయు శుభలేఖార్ధములు — మా ఏకైక పుత్రుడు
@@ -72,10 +79,10 @@ export function TeluguWeddingCard() {
         <div className="relative z-10 space-y-1.5 py-0.5">
           <div className="space-y-0.5">
             <p className="font-telugu font-bold text-gold-dark text-[11px] sm:text-xs">
-              వరుడు : చౌ॥ మోహన్ ప్రణీత్
+              {couple.groom.titleTe} {couple.groom.nameTe}
             </p>
             <p className="font-calligraphy text-crimson font-bold text-xl sm:text-2xl leading-none">
-              Mohan Praneeth
+              {couple.groom.nameEn}
             </p>
           </div>
 
@@ -87,13 +94,13 @@ export function TeluguWeddingCard() {
 
           <div className="space-y-0.5">
             <p className="font-telugu font-bold text-gold-dark text-[11px] sm:text-xs">
-              వధువు : చౌ॥లా॥సౌ॥ లీపిక
+              {couple.bride.titleTe} {couple.bride.nameTe}
             </p>
             <p className="font-calligraphy text-crimson font-bold text-xl sm:text-2xl leading-none">
-              Leepika
+              {couple.bride.nameEn}
             </p>
             <p className="font-telugu text-[9.5px] sm:text-[10px] text-[#7a4a4a]">
-              హైదరాబాద్ వాసులు శ్రీ బంగారి ఆర్. సునీల్ కుమార్ గారి ఏకైక పుత్రిక
+              {couple.bride.parentDetailsTe}
             </p>
           </div>
         </div>
@@ -105,25 +112,29 @@ export function TeluguWeddingCard() {
             <span>సుముహూర్తం (Sumuhurtham):</span>
           </div>
           <p className="font-telugu text-crimson-dark font-bold text-xs">
-            తే 22-08-2026 శనివారం రాత్రి గం॥ 11-59 ని॥లకు (శ్రావణ శుద్ధ దశమి)
+            {muhurtham.dateStringTe} {muhurtham.timeStringTe} ({muhurtham.thithiTe})
           </p>
           <p className="font-telugu text-[#7a4a4a] text-[10px]">
-            మూలా నక్షత్రయుక్త · మేష లగ్న పుష్పాంశమువంద
+            {muhurtham.nakshatramTe} · {muhurtham.lagnamTe}
           </p>
         </div>
 
         {/* ── Venues Summary ── */}
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-left text-xs">
-          <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
-            <p className="font-telugu font-bold text-crimson text-[10px]">కళ్యాణవేదిక (Hyd):</p>
-            <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">I Conventions</p>
-            <p className="font-telugu text-[#7a4a4a] text-[9.5px]">చందానగర్, అమీన్‌పూర్</p>
-          </div>
-          <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
-            <p className="font-telugu font-bold text-crimson text-[10px]">రిసెప్షన్ (Vizag):</p>
-            <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">Sri Sai Surya Function Hall</p>
-            <p className="font-telugu text-[#7a4a4a] text-[9.5px]">26-08-2026 మ॥ 12:00 · కొమ్మాడి</p>
-          </div>
+          {weddingVenue && (
+            <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
+              <p className="font-telugu font-bold text-crimson text-[10px]">{weddingVenue.typeTelugu}:</p>
+              <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">{weddingVenue.name}</p>
+              <p className="font-telugu text-[#7a4a4a] text-[9.5px]">{weddingVenue.landmark}</p>
+            </div>
+          )}
+          {receptionVenue && (
+            <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
+              <p className="font-telugu font-bold text-crimson text-[10px]">{receptionVenue.typeTelugu}:</p>
+              <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">{receptionVenue.name}</p>
+              <p className="font-telugu text-[#7a4a4a] text-[9.5px]">{receptionVenue.date} · {receptionVenue.city}</p>
+            </div>
+          )}
         </div>
 
         {/* ── Family Compliments ── */}
@@ -132,7 +143,7 @@ export function TeluguWeddingCard() {
             వధూవరులను ఆశీర్వదించ ప్రార్థన
           </p>
           <p className="font-display italic text-[#7a4a4a] text-[9.5px]">
-            With best compliments from Families and Near &amp; Dear
+            {compliments.en}
           </p>
         </div>
 

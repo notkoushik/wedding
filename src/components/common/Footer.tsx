@@ -1,7 +1,10 @@
 import React from 'react'
 import { GoldDivider, GoldStrip } from './GoldDivider'
+import { weddingData } from '../../data/weddingData'
 
 export function Footer() {
+  const { couple, muhurtham, parents, compliments } = weddingData
+
   return (
     <footer
       className="relative overflow-hidden py-16 md:py-24"
@@ -39,10 +42,10 @@ export function Footer() {
               textShadow: '0 2px 20px rgba(201,168,76,0.4)',
             }}
           >
-            Mohan Praneeth &amp; Leepika
+            {couple.namesCombinedEn}
           </h2>
           <p className="font-display italic text-gold-light/75 text-xs tracking-wider">
-            22nd August 2026 · Night 11:59 hrs
+            {muhurtham.dateStringEn} · {muhurtham.timeStringEn}
           </p>
         </div>
 
@@ -51,10 +54,10 @@ export function Footer() {
         {/* Family Blessings */}
         <div className="space-y-2 max-w-lg mx-auto">
           <p className="font-telugu text-gold-light/90 text-sm md:text-base leading-loose font-medium">
-            కుటుంబ సభ్యులు మరియు బంధుమిత్రుల హృదయపూర్వక అభినందనలతో...
+            {compliments.te}
           </p>
           <p className="font-display italic text-parchment/65 text-xs">
-            With best compliments from Families, Friends, and Near &amp; Dear.
+            {compliments.en}
           </p>
         </div>
 
@@ -63,10 +66,10 @@ export function Footer() {
         {/* Parents Note */}
         <div className="space-y-1">
           <p className="font-display font-semibold text-gold-light text-sm sm:text-base">
-            Sri Turupada Rama Krishna &amp; Smt. Visalakshi
+            {parents.groomParentsEn}
           </p>
           <p className="font-display italic text-parchment/50 text-xs">
-            Visakhapatnam &amp; Hyderabad
+            {parents.groomParentsCityEn}
           </p>
         </div>
 

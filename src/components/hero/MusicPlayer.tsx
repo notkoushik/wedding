@@ -1,41 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import defaultAlbumCover from '../../../Card/couple1.png'
-
-interface Track {
-  id: number
-  titleTelugu: string
-  titleEnglish: string
-  subtitle: string
-  url: string
-  cover?: string
-}
-
-const PLAYLIST: Track[] = [
-  {
-    id: 1,
-    titleTelugu: 'మంగళం భవంతు',
-    titleEnglish: 'MANGALAM BHAVANTHU',
-    subtitle: 'Traditional Shehnai & Nadaswaram',
-    url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=indian-traditional-background-music-112194.mp3',
-    cover: defaultAlbumCover,
-  },
-  {
-    id: 2,
-    titleTelugu: 'సీతారాముల కళ్యాణం',
-    titleEnglish: 'SITARAMA KALYANAM',
-    subtitle: 'Carnatic Classical Flute & Veena',
-    url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c3523e4210.mp3?filename=relaxing-indian-flute-music-11100.mp3',
-    cover: defaultAlbumCover,
-  },
-  {
-    id: 3,
-    titleTelugu: 'మాంగల్య ధారణ మహోత్సవం',
-    titleEnglish: 'MAANGALYA DHARANA',
-    subtitle: 'Auspicious Sumuhurtham Melodies',
-    url: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_348a735160.mp3?filename=indian-instrumental-music-flute-sitar-tabla-7140.mp3',
-    cover: defaultAlbumCover,
-  },
-]
+import { weddingData } from '../../data/weddingData'
 
 function formatTime(seconds: number) {
   if (isNaN(seconds) || seconds < 0) return '00:00'
@@ -49,6 +13,7 @@ interface MusicPlayerProps {
 }
 
 export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
+  const playlist = weddingData.playlist
   const [isOpen, setIsOpen] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -60,12 +25,12 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
   const [isLoop, setIsLoop] = useState(true)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const currentTrack = PLAYLIST[currentTrackIndex]
-  const activeCover = customAlbumCover || currentTrack.cover || defaultAlbumCover
+  const currentTrack = playlist[currentTrackIndex] || playlist[0]
+  const activeCover = customAlbumCover || currentTrack?.cover || weddingData.couple.avatarImage
 
   useEffect(() => {
     const audio = new Audio(currentTrack.url)
-    audio.volume = volume
+    audio.volume = isMuted ? 0 : volume
     audio.loop = isLoop
 
     audio.addEventListener('play', () => setIsPlaying(true))
@@ -82,11 +47,17 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
     }
   }, [currentTrackIndex])
 
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.loop = isLoop
+    }
+  }, [isLoop])
+
   const handleTrackEnded = () => {
     if (isLoop) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0
-        audioRef.current.play()
+        audioRef.current.play().catch(() => {})
       }
     } else {
       nextTrack()
@@ -105,16 +76,16 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
   }
 
   const prevTrack = () => {
-    const newIdx = currentTrackIndex === 0 ? PLAYLIST.length - 1 : currentTrackIndex - 1
+    const newIdx = currentTrackIndex === 0 ? playlist.length - 1 : currentTrackIndex - 1
     setCurrentTrackIndex(newIdx)
   }
 
   const nextTrack = () => {
     if (isShuffle) {
-      const randomIdx = Math.floor(Math.random() * PLAYLIST.length)
+      const randomIdx = Math.floor(Math.random() * playlist.length)
       setCurrentTrackIndex(randomIdx)
     } else {
-      const newIdx = (currentTrackIndex + 1) % PLAYLIST.length
+      const newIdx = (currentTrackIndex + 1) % playlist.length
       setCurrentTrackIndex(newIdx)
     }
   }
@@ -446,7 +417,7 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
 
                 {/* Playlist Quick Switcher Pill */}
                 <div className="flex items-center gap-1.5 pt-1">
-                  {PLAYLIST.map((trk, i) => (
+                  {playlist.map((trk, i) => (
                     <button
                       key={trk.id}
                       onClick={() => setCurrentTrackIndex(i)}

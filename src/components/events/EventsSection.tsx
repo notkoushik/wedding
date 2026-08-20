@@ -1,11 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { SectionLabel, GoldDivider, GoldStrip } from '../common/GoldDivider'
-import {
-  WEDDING_CEREMONY_EVENT,
-  RECEPTION_EVENT,
-  createGoogleCalendarUrl,
-  downloadIcsFile,
-} from '../../lib/calendar'
+import { createGoogleCalendarUrl } from '../../lib/calendar'
+import { weddingData } from '../../data/weddingData'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -25,45 +21,7 @@ function useInView(threshold = 0.1) {
 
 export function EventsSection() {
   const [ref, visible] = useInView()
-
-  const events = [
-    {
-      id: 'muhurtham',
-      emoji: '🪔',
-      title: 'Sumuhurtham',
-      titleTelugu: 'సముహూర్తం (కళ్యాణ మహోత్సవం)',
-      subtitle: 'Auspicious Wedding Ceremony',
-      day: 'Saturday',
-      date: '22nd August 2026',
-      time: 'Night 11:59 hrs',
-      nakshatram: 'Śrāvaṇa Śuddha Daśami · Mūla Nakshatram · Mēṣa Lagnam',
-      nakshatramTelugu: 'శ్రావణ శుద్ధ దశమి, మూలా నక్షత్రయుక్త, మేష లగ్న పుష్పాంశమువంద',
-      venueName: 'I Conventions',
-      venueAddress: 'Sri Devi Theatre Road, Chanda Nagar, Ameenpur, Hyderabad',
-      dressCode: 'Traditional South Indian Silk / Festive Pattu Wear',
-      dressCodeTelugu: 'సంప్రదాయ పట్టు వస్త్రములు',
-      calendarEvent: WEDDING_CEREMONY_EVENT,
-      mapLink: 'https://maps.google.com/?q=I+Conventions+Chanda+Nagar+Ameenpur+Hyderabad',
-    },
-    {
-      id: 'reception',
-      emoji: '🌺',
-      title: 'Grand Reception',
-      titleTelugu: 'రిసెప్షన్ & విందు',
-      subtitle: 'Celebration of Joy & Blessings',
-      day: 'Wednesday',
-      date: '26th August 2026',
-      time: '12:00 Noon Onwards',
-      nakshatram: 'Grand Luncheon & Family Gathering',
-      nakshatramTelugu: 'బంధుమిత్రుల సమక్షంలో స్నేహపూర్వక విందు',
-      venueName: 'Sri Sai Surya Function Hall',
-      venueAddress: 'Kommadi Junction, Srinivas Nagar, Madhuravada, Visakhapatnam',
-      dressCode: 'Traditional Ethnic / Royal Formal',
-      dressCodeTelugu: 'రాచరిక సాంప్రదాయ దుస్తులు',
-      calendarEvent: RECEPTION_EVENT,
-      mapLink: 'https://maps.google.com/?q=Sri+Sai+Surya+Function+Hall+Madhuravada+Visakhapatnam',
-    },
-  ]
+  const { events } = weddingData
 
   return (
     <section
@@ -90,7 +48,7 @@ export function EventsSection() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-            {events.map((ev, i) => (
+            {events.map((ev) => (
               <div
                 key={ev.id}
                 className="relative rounded-3xl overflow-hidden glass-crimson flex flex-col justify-between transition-all duration-300 hover:border-gold/60 shadow-2xl group"

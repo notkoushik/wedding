@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { SectionLabel } from '../common/GoldDivider'
+import { weddingData } from '../../data/weddingData'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -17,48 +18,10 @@ function useInView(threshold = 0.1) {
   return [ref, visible] as const
 }
 
-const PHOTOS = [
-  {
-    url: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2?w=900&h=1200&fit=crop&auto=format',
-    title: 'Divine Rituals',
-    alt: 'Couple performing sacred wedding ritual under floral canopy',
-    tall: true,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1587271598589-3f91d0872f66?w=800&h=600&fit=crop&auto=format',
-    title: 'Bridal Grace',
-    alt: 'Bride in red and gold traditional silk attire',
-    tall: false,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1630764883473-e8c2056f0589?w=800&h=600&fit=crop&auto=format',
-    title: 'Sacred Havan',
-    alt: 'Sacred fire ritual at Hindu ceremony',
-    tall: false,
-  },
-  {
-    url: 'https://images.unsplash.com/flagged/photo-1570055349452-29232699cc63?w=900&h=1200&fit=crop&auto=format',
-    title: 'Royal Ornaments',
-    alt: 'Exquisite gold bridal jewellery and temple motifs',
-    tall: true,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1607512566084-a20ed291d623?w=800&h=600&fit=crop&auto=format',
-    title: 'Festive Marigolds',
-    alt: 'Traditional marigold flowers and decorations',
-    tall: false,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1764286954620-28029fbae9b6?w=800&h=600&fit=crop&auto=format',
-    title: 'Together in Love',
-    alt: 'Bride and groom in traditional South Indian wedding attire',
-    tall: false,
-  },
-]
-
 export function GallerySection() {
   const [ref, visible] = useInView()
   const [lightbox, setLightbox] = useState<string | null>(null)
+  const { gallery } = weddingData
 
   return (
     <section
@@ -84,7 +47,7 @@ export function GallerySection() {
             className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5"
             style={{ gridAutoRows: '220px' }}
           >
-            {PHOTOS.map((p, i) => (
+            {gallery.map((p, i) => (
               <div
                 key={i}
                 className={`relative overflow-hidden rounded-2xl cursor-pointer group ${

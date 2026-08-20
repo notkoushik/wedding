@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import { weddingData } from '../../data/weddingData'
 
 export function MobileBottomBar() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
     const fn = () => {
-      // Show bottom bar after scrolling past top 100px
+      // Show bottom bar after scrolling past top 80px
       setShow(window.scrollY > 80)
     }
     window.addEventListener('scroll', fn, { passive: true })
@@ -17,9 +18,7 @@ export function MobileBottomBar() {
   }
 
   const shareToWhatsApp = () => {
-    const text = encodeURIComponent(
-      `🌸 Wedding Invitation 🌸\n\nMohan Praneeth & Leepika's Wedding Ceremony\n📅 22nd August 2026, 11:59 PM @ Hyderabad\n\nView Invitation & RSVP:\n${window.location.href}`
-    )
+    const text = encodeURIComponent(weddingData.socialShare.whatsappGeneralText(window.location.href))
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank')
   }
 

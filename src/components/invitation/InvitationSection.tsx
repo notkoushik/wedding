@@ -3,7 +3,7 @@ import { SectionLabel } from '../common/GoldDivider'
 import { OriginalCardViewer } from './OriginalCardViewer'
 import { TeluguWeddingCard } from './TeluguWeddingCard'
 import { DigitalEnglishCard } from './DigitalEnglishCard'
-import originalCardImg from '../../../Card/a45d3dae-4b4b-4761-ace0-49c629b52d58.png'
+import { weddingData } from '../../data/weddingData'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -25,18 +25,17 @@ export function InvitationSection() {
   const [ref, visible] = useInView()
   const [language, setLanguage] = useState<'telugu' | 'english'>('telugu')
   const [zoomModalType, setZoomModalType] = useState<'cover' | 'content' | null>(null)
+  const { couple, socialShare } = weddingData
 
   const shareToWhatsApp = () => {
-    const text = encodeURIComponent(
-      `🌸 శ్రీరస్తు · శుభమస్తు · అవిఘ్నమస్తు 🌸\n\nతురుపాడ వారి పెండ్లి పిలుపు\nమోహన్ ప్రణీత్ & లీపిక ల వివాహ మహోత్సవం\n📅 తేది: 22-08-2026 రాత్రి 11:59 ని॥లకు\n📍 వేదిక: ఐ కన్వెన్షన్స్, చందానగర్, హైదరాబాద్\n\nడిజిటల్ శుభలేఖ & RSVP ఇక్కడ చూడండి:\n${window.location.href}`
-    )
+    const text = encodeURIComponent(socialShare.whatsappInvitationText(window.location.href))
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank')
   }
 
   const handleDownloadCover = () => {
     const link = document.createElement('a')
-    link.href = originalCardImg
-    link.download = 'Mohan-Praneeth-Leepika-Wedding-Cover.png'
+    link.href = couple.coverCardImage
+    link.download = `${couple.namesCombinedEn.replace(/\s+/g, '-')}-Wedding-Cover.png`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -58,7 +57,7 @@ export function InvitationSection() {
         >
           <SectionLabel
             title="The Wedding Invitation"
-            sub="తురుపాడ వారి పెండ్లి పిలుపు"
+            sub={couple.familyHeaderTe}
           />
 
           {/* ── Top Language Category Selector with Royal Gold Sheen ── */}
@@ -238,7 +237,7 @@ export function InvitationSection() {
             <div className="overflow-y-auto max-h-[78vh] flex justify-center py-1">
               {zoomModalType === 'cover' ? (
                 <img
-                  src={originalCardImg}
+                  src={couple.coverCardImage}
                   alt="Opening wedding invitation cover"
                   className="w-full h-auto object-contain rounded-xl shadow-lg animate-fadeUp"
                 />

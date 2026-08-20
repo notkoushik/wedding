@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import coupleAvatar from '../../assets/aestatics/head reshaped image.jpg'
+import { weddingData } from '../../data/weddingData'
 
 export function NavBar() {
   const [scrolled, setScrolled] = useState(false)
@@ -27,6 +27,8 @@ export function NavBar() {
     { id: 'rsvp', label: 'RSVP' },
   ]
 
+  const { couple } = weddingData
+
   return (
     <nav
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -50,18 +52,18 @@ export function NavBar() {
           {/* Aesthetic Couple Avatar inside a 24K Gold Filigree Ring */}
           <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-[#c9a84c] shadow-sm bg-[#f5ede1] flex items-center justify-center p-0.5 group-hover:border-[#ffd700] transition-colors">
             <img
-              src={coupleAvatar}
-              alt="Mohan & Leepika"
+              src={couple.avatarImage}
+              alt={couple.namesCombinedEn}
               className="w-full h-full object-cover object-top rounded-full"
             />
           </div>
 
           <div className="flex flex-col">
             <span className="font-calligraphy text-2xl md:text-3xl text-crimson group-hover:text-crimson-dark transition-colors leading-none font-bold">
-              Mohan &amp; Leepika
+              {couple.shortNamesEn}
             </span>
             <span className="font-telugu text-[10px] text-[#9b7b1b] font-semibold -mt-0.5 hidden sm:inline">
-              తురుపాడ వారి శుభవివాహం
+              {couple.familyHeaderTe}
             </span>
           </div>
         </button>

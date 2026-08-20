@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { SectionLabel, GoldDivider } from '../common/GoldDivider'
 import { OrnateCard } from '../common/OrnateCard'
+import { weddingData } from '../../data/weddingData'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -20,33 +21,7 @@ function useInView(threshold = 0.1) {
 
 export function VenuesSection() {
   const [ref, visible] = useInView()
-
-  const venues = [
-    {
-      type: 'Wedding Ceremony Venue',
-      typeTelugu: 'కళ్యాణవేదిక (హైదరాబాద్)',
-      name: 'I Conventions',
-      city: 'Hyderabad, Telangana',
-      address: 'Sri Devi Theatre Road, Chanda Nagar, Ameenpur, Hyderabad - 502032',
-      landmark: 'Near Sri Devi Cinema & Ameenpur Lake Junction',
-      date: '22nd August 2026',
-      time: 'Night 11:59 hrs',
-      map: 'https://maps.google.com/?q=I+Conventions+Chanda+Nagar+Ameenpur+Hyderabad',
-      icon: '🏛️',
-    },
-    {
-      type: 'Reception & Feast Venue',
-      typeTelugu: 'రిసెప్షన్ వేదిక (విశాఖపట్టణం)',
-      name: 'Sri Sai Surya Function Hall',
-      city: 'Visakhapatnam, Andhra Pradesh',
-      address: 'Kommadi Junction, Srinivas Nagar, Madhuravada, Visakhapatnam - 530048',
-      landmark: 'Opposite Kommadi Junction, NH-16 Highway',
-      date: '26th August 2026',
-      time: '12:00 Noon Onwards',
-      map: 'https://maps.google.com/?q=Sri+Sai+Surya+Function+Hall+Madhuravada+Visakhapatnam',
-      icon: '🌸',
-    },
-  ]
+  const { venues } = weddingData
 
   return (
     <section id="venues" className="relative bg-ivory py-20 md:py-28 overflow-hidden">

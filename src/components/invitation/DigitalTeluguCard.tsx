@@ -1,6 +1,11 @@
 import React from 'react'
+import { weddingData } from '../../data/weddingData'
 
 export function DigitalTeluguCard() {
+  const { couple, parents, muhurtham, venues } = weddingData
+  const weddingVenue = venues[0]
+  const receptionVenue = venues[1]
+
   return (
     <svg
       viewBox="0 0 380 580"
@@ -57,7 +62,7 @@ export function DigitalTeluguCard() {
 
       {/* Top Blessing Text */}
       <text x="190" y="46" textAnchor="middle" fontSize="10" fill="#9b7b1b" opacity="0.9" fontFamily="'Noto Serif Telugu',serif" fontWeight="bold" letterSpacing="1.5">
-        శ్రీ రస్తు · శుభమస్తు · అవిఘ్నమస్తు
+        {couple.sanskritHeaderTe.replace(/\|\|/g, '').trim()}
       </text>
       <line x1="30" y1="56" x2="350" y2="56" stroke="#8B1A1A" strokeWidth="0.6" opacity="0.35" strokeDasharray="2.5 2" />
 
@@ -71,16 +76,18 @@ export function DigitalTeluguCard() {
 
       {/* Main Telugu Title */}
       <text x="190" y="124" textAnchor="middle" fontSize="22" fill="#8B1A1A" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">
-        తురుపాడ వారి పెండ్లి పిలుపు
+        {couple.familyHeaderTe}
       </text>
 
       {/* Parents Blessing & Invitation Note */}
-      <text x="190" y="148" textAnchor="middle" fontSize="8.5" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
-        కీ॥శే॥ తురుపాడ రామినాయుడు, కీ॥శే॥ గుంట్రెడ్డి వెంకట జగన్నాధ నాయుడు గార్ల ఆశీస్సులతో...
-      </text>
+      {parents.ancestorsTe && (
+        <text x="190" y="148" textAnchor="middle" fontSize="8.5" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
+          {parents.ancestorsTe}
+        </text>
+      )}
 
       <text x="190" y="170" textAnchor="middle" fontSize="12" fill="#8B1A1A" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">
-        శ్రీ తురుపాడ రామకృష్ణ, శ్రీమతి విశాలాక్షి దంపతులు
+        {parents.groomParentsTe}
       </text>
       <text x="190" y="188" textAnchor="middle" fontSize="10.5" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="600">
         వ్రాయు శుభలేఖార్ధములు
@@ -91,49 +98,65 @@ export function DigitalTeluguCard() {
 
       {/* Groom Section */}
       <line x1="60" y1="216" x2="320" y2="216" stroke="#C9A84C" strokeWidth="0.7" opacity="0.5" />
-      <text x="190" y="232" textAnchor="middle" fontSize="9.5" fill="#9b7b1b" fontFamily="'Noto Serif Telugu',serif" fontWeight="bold">వరుడు :</text>
-      <text x="190" y="258" textAnchor="middle" fontSize="26" fill="#8B1A1A" fontFamily="'Great Vibes',cursive">Mohan Praneeth</text>
+      <text x="190" y="232" textAnchor="middle" fontSize="9.5" fill="#9b7b1b" fontFamily="'Noto Serif Telugu',serif" fontWeight="bold">
+        {couple.groom.titleTe}
+      </text>
+      <text x="190" y="258" textAnchor="middle" fontSize="26" fill="#8B1A1A" fontFamily="'Great Vibes',cursive">
+        {couple.groom.nameEn}
+      </text>
       <text x="190" y="278" textAnchor="middle" fontSize="14" fill="#8B1A1A" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">
-        చౌ॥ మోహన్ ప్రణీత్
+        {couple.groom.nameTe}
       </text>
       <text x="190" y="294" textAnchor="middle" fontSize="9" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">కు</text>
 
       {/* Bride Section */}
       <line x1="60" y1="304" x2="320" y2="304" stroke="#C9A84C" strokeWidth="0.7" opacity="0.5" />
-      <text x="190" y="320" textAnchor="middle" fontSize="9.5" fill="#9b7b1b" fontFamily="'Noto Serif Telugu',serif" fontWeight="bold">వధువు :</text>
-      <text x="190" y="346" textAnchor="middle" fontSize="28" fill="#8B1A1A" fontFamily="'Great Vibes',cursive">Leepika</text>
+      <text x="190" y="320" textAnchor="middle" fontSize="9.5" fill="#9b7b1b" fontFamily="'Noto Serif Telugu',serif" fontWeight="bold">
+        {couple.bride.titleTe}
+      </text>
+      <text x="190" y="346" textAnchor="middle" fontSize="28" fill="#8B1A1A" fontFamily="'Great Vibes',cursive">
+        {couple.bride.nameEn}
+      </text>
       <text x="190" y="366" textAnchor="middle" fontSize="14" fill="#8B1A1A" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">
-        చౌ॥లా॥సౌ॥ లీపిక
+        {couple.bride.nameTe}
       </text>
       <text x="190" y="382" textAnchor="middle" fontSize="8.5" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
-        హైదరాబాద్ వా॥లు శ్రీ బంగారి ఆర్. సునీల్ కుమార్ గారి ఏకైక పుత్రిక
+        {couple.bride.parentDetailsTe}
       </text>
 
       <line x1="30" y1="394" x2="350" y2="394" stroke="#C9A84C" strokeWidth="0.8" opacity="0.5" strokeDasharray="4 3" />
 
       {/* Sumuhurtham Box */}
       <rect x="25" y="405" width="330" height="72" fill="rgba(201,168,76,0.08)" stroke="#C9A84C" strokeWidth="0.6" rx="6" />
-      <text x="40" y="424" fontSize="11" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">సముహూర్తం :</text>
+      <text x="40" y="424" fontSize="11" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">సుముహూర్తం :</text>
       <text x="40" y="440" fontSize="8.5" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
-        న్యస్తశ్రీ చాంద్రమాన శ్రీ వరాభవ నామ న॥ శ్రావణ శుద్ధ దశమి
+        {muhurtham.thithiTe}
       </text>
       <text x="40" y="455" fontSize="9" fill="#8B1A1A" fontFamily="'Noto Serif Telugu',serif" fontWeight="bold">
-        తే 22-08-2026 ది శనివారం రాత్రి గం॥ 11-59 ని॥కు
+        {muhurtham.dateStringTe} {muhurtham.timeStringTe}
       </text>
       <text x="40" y="470" fontSize="8.5" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
-        మూలా నక్షత్రయుక్త, మేష లగ్న పుష్పాంశమువంద
+        {muhurtham.nakshatramTe}, {muhurtham.lagnamTe}
       </text>
 
       {/* Venues Box */}
       <rect x="25" y="484" width="330" height="78" fill="rgba(139,26,26,0.04)" stroke="#C9A84C" strokeWidth="0.6" rx="6" />
-      <text x="40" y="502" fontSize="10.5" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">కళ్యాణవేదిక (Hyderabad):</text>
-      <text x="40" y="517" fontSize="8.2" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
-        ఐ కన్వెన్షన్స్, శ్రీ దేవి థియేటర్ రోడ్, చందానగర్, అమీన్‌పూర్
-      </text>
-      <text x="40" y="534" fontSize="10.5" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">రిసెప్షన్ (Visakhapatnam):</text>
-      <text x="40" y="549" fontSize="8.2" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
-        తే 26-08-2026 బుధవారం · శ్రీ సాయి సూర్య ఫంక్షన్ హాల్, కొమ్మాడి జంక్షన్
-      </text>
+      {weddingVenue && (
+        <>
+          <text x="40" y="502" fontSize="10.5" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">{weddingVenue.typeTelugu}:</text>
+          <text x="40" y="517" fontSize="8.2" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
+            {weddingVenue.name}, {weddingVenue.landmark}
+          </text>
+        </>
+      )}
+      {receptionVenue && (
+        <>
+          <text x="40" y="534" fontSize="10.5" fill="#5c0a0a" fontFamily="'Noto Serif Telugu',serif" fontWeight="700">{receptionVenue.typeTelugu}:</text>
+          <text x="40" y="549" fontSize="8.2" fill="#7a4a4a" fontFamily="'Noto Serif Telugu',serif">
+            {receptionVenue.date} · {receptionVenue.name}, {receptionVenue.city}
+          </text>
+        </>
+      )}
 
       <line x1="30" y1="570" x2="350" y2="570" stroke="#C9A84C" strokeWidth="0.4" opacity="0.3" />
     </svg>

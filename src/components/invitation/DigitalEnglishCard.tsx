@@ -1,7 +1,12 @@
 import React from 'react'
 import { GoldDivider } from '../common/GoldDivider'
+import { weddingData } from '../../data/weddingData'
 
 export function DigitalEnglishCard() {
+  const { couple, parents, muhurtham, venues, compliments } = weddingData
+  const weddingVenue = venues[0]
+  const receptionVenue = venues[1]
+
   return (
     <div
       className="relative rounded-[26px] p-2 transition-all duration-400 group h-full flex flex-col justify-between hover:-translate-y-1"
@@ -39,7 +44,7 @@ export function DigitalEnglishCard() {
           </div>
 
           <p className="font-telugu font-semibold text-crimson text-xs">
-            శ్రీ రస్తు శుభమస్తు అవిఘ్నమస్తు
+            {couple.sanskritHeaderTe.replace(/\|\|/g, '').trim()}
           </p>
         </div>
 
@@ -48,22 +53,24 @@ export function DigitalEnglishCard() {
         </div>
 
         {/* Ancestral Blessings */}
-        <div className="relative z-10 space-y-0.5">
-          <p className="font-display font-medium text-gold-dark text-[9.5px] uppercase tracking-[0.22em]">
-            With Divine Ancestral Blessings
-          </p>
-          <p className="font-display italic text-[#7a4a4a] text-[11px] leading-tight">
-            Late Sri T. Rami Naidu &amp; Late Sri G. Venkata Jagannadha Naidu
-          </p>
-        </div>
+        {parents.ancestorsEn && (
+          <div className="relative z-10 space-y-0.5">
+            <p className="font-display font-medium text-gold-dark text-[9.5px] uppercase tracking-[0.22em]">
+              With Divine Ancestral Blessings
+            </p>
+            <p className="font-display italic text-[#7a4a4a] text-[11px] leading-tight">
+              {parents.ancestorsEn}
+            </p>
+          </div>
+        )}
 
         {/* Parents' Names */}
         <div className="relative z-10 py-1 px-3 rounded-lg bg-gold/10 border border-gold/25 inline-block mx-auto">
           <p className="font-display font-bold text-crimson text-xs sm:text-sm">
-            Sri Turupada Rama Krishna &amp; Smt. Visalakshi
+            {parents.groomParentsEn}
           </p>
           <p className="font-display text-[#7a4a4a] text-[10px]">
-            Visakhapatnam &amp; Hyderabad
+            {parents.groomParentsCityEn}
           </p>
         </div>
 
@@ -74,9 +81,9 @@ export function DigitalEnglishCard() {
         {/* Groom & Bride Names */}
         <div className="relative z-10 space-y-1.5 py-0.5">
           <div className="space-y-0.5">
-            <p className="font-display italic text-[#7a4a4a] text-[10px]">Chy. :</p>
+            <p className="font-display italic text-[#7a4a4a] text-[10px]">{couple.groom.titleEn}</p>
             <h2 className="font-calligraphy text-crimson font-bold text-xl sm:text-2xl leading-none">
-              Mohan Praneeth
+              {couple.groom.nameEn}
             </h2>
           </div>
 
@@ -87,12 +94,12 @@ export function DigitalEnglishCard() {
           </div>
 
           <div className="space-y-0.5">
-            <p className="font-display italic text-[#7a4a4a] text-[10px]">Chy. La. Sow. :</p>
+            <p className="font-display italic text-[#7a4a4a] text-[10px]">{couple.bride.titleEn}</p>
             <h2 className="font-calligraphy text-crimson font-bold text-xl sm:text-2xl leading-none">
-              Leepika
+              {couple.bride.nameEn}
             </h2>
             <p className="font-body italic text-[#7a4a4a] text-[10px] pt-0.5">
-              Only daughter of Sri Bangari R. Sunil Kumar, (Late. Smt. Navaneetha) of Hyderabad
+              {couple.bride.parentDetailsEn}
             </p>
           </div>
         </div>
@@ -103,34 +110,38 @@ export function DigitalEnglishCard() {
             Sumuhurtham (Wedding Ceremony)
           </p>
           <p className="font-body font-bold text-crimson text-xs">
-            Saturday, 22nd August 2026 at Night 11:59 hrs
+            {muhurtham.dateStringEn} at {muhurtham.timeStringEn}
           </p>
           <p className="font-body italic text-[#7a4a4a] text-[10px]">
-            Śrāvaṇa Śuddha Daśami · Mūla Nakshatram · Mēṣa Lagnam
+            {muhurtham.fullMuhurthamAstroEn}
           </p>
         </div>
 
         {/* Venues Summary */}
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-left text-xs">
-          <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
-            <p className="font-display font-bold text-crimson text-[10px]">Wedding Venue (Hyd):</p>
-            <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">I Conventions</p>
-            <p className="font-body text-[#7a4a4a] text-[9.5px]">Chanda Nagar, Ameenpur</p>
-          </div>
-          <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
-            <p className="font-display font-bold text-crimson text-[10px]">Reception Venue (Vizag):</p>
-            <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">Sri Sai Surya Function Hall</p>
-            <p className="font-body text-[#7a4a4a] text-[9.5px]">26th Aug · Kommadi Jn</p>
-          </div>
+          {weddingVenue && (
+            <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
+              <p className="font-display font-bold text-crimson text-[10px]">{weddingVenue.type}:</p>
+              <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">{weddingVenue.name}</p>
+              <p className="font-body text-[#7a4a4a] text-[9.5px]">{weddingVenue.landmark}</p>
+            </div>
+          )}
+          {receptionVenue && (
+            <div className="bg-gold/10 border border-gold/25 rounded-lg p-2 space-y-0.5">
+              <p className="font-display font-bold text-crimson text-[10px]">{receptionVenue.type}:</p>
+              <p className="font-body text-[#5c0a0a] text-[10.5px] font-semibold">{receptionVenue.name}</p>
+              <p className="font-body text-[#7a4a4a] text-[9.5px]">{receptionVenue.date} · {receptionVenue.city}</p>
+            </div>
+          )}
         </div>
 
         {/* Family Compliments */}
         <div className="relative z-10 text-center pt-0.5">
           <p className="font-telugu text-gold-dark font-bold text-[11px] sm:text-xs">
-            వధూవరులను ఆశీర్వదించ ప్రార్థన
+            {compliments.te}
           </p>
           <p className="font-display italic text-[#7a4a4a] text-[9.5px]">
-            With best compliments from Families and Near &amp; Dear
+            {compliments.en}
           </p>
         </div>
 
