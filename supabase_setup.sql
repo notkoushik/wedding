@@ -31,30 +31,7 @@ CREATE TABLE IF NOT EXISTS public.rsvps (
     message TEXT
 );
 
--- 3. Enable Row Level Security (RLS) & Public Policies for Wedding Guests
-ALTER TABLE public.wishes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rsvps ENABLE ROW LEVEL SECURITY;
-
--- Allow anyone to read and insert wishes
-CREATE POLICY "Allow public read wishes" ON public.wishes FOR SELECT USING (true);
-CREATE POLICY "Allow public insert wishes" ON public.wishes FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update wish likes" ON public.wishes FOR UPDATE USING (true);
-
--- Allow anyone to insert and read RSVPs
-CREATE POLICY "Allow public insert rsvps" ON public.rsvps FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public read rsvps" ON public.rsvps FOR SELECT USING (true);
-
--- 4. Helper Function for atomic wish like increments
-CREATE OR REPLACE FUNCTION increment_wish_likes(wish_id UUID)
-RETURNS void AS $$
-BEGIN
-    UPDATE public.wishes
-    SET likes = likes + 1
-    WHERE id = wish_id;
-END;
-$$ LANGUAGE plpgsql;
-
--- 5. Create Live Guest Photo Stream Table
+-- 3. Create Live Guest Photo Stream Table
 CREATE TABLE IF NOT EXISTS public.guest_photos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ DEFAULT now(),
@@ -65,16 +42,62 @@ CREATE TABLE IF NOT EXISTS public.guest_photos (
     is_hidden BOOLEAN DEFAULT false
 );
 
+-- 4. Enable Row Level Security (RLS)
+ALTER TABLE public.wishes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rsvps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.guest_photos ENABLE ROW LEVEL SECURITY;
+
+-- 5. Safe Policies for Wishes (Drop first if exists, then create)
+DROP POLICY IF EXISTS "Allow public read wishes" ON public.wishes;
+DROP POLICY IF EXISTS "Allow public insert wishes" ON public.wishes;
+DROP POLICY IF EXISTS "Allow public update wish likes" ON public.wishes;
+DROP POLICY IF EXISTS "Allow public delete wishes" ON public.wishes;
+
+CREATE POLICY "Allow public read wishes" ON public.wishes FOR SELECT USING (true);
+CREATE POLICY "Allow public insert wishes" ON public.wishes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update wish likes" ON public.wishes FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete wishes" ON public.wishes FOR DELETE USING (true);
+
+-- 6. Safe Policies for RSVPs
+DROP POLICY IF EXISTS "Allow public insert rsvps" ON public.rsvps;
+DROP POLICY IF EXISTS "Allow public read rsvps" ON public.rsvps;
+DROP POLICY IF EXISTS "Allow public delete rsvps" ON public.rsvps;
+
+CREATE POLICY "Allow public insert rsvps" ON public.rsvps FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public read rsvps" ON public.rsvps FOR SELECT USING (true);
+CREATE POLICY "Allow public delete rsvps" ON public.rsvps FOR DELETE USING (true);
+
+-- 7. Safe Policies for Guest Photos
+DROP POLICY IF EXISTS "Allow public read guest_photos" ON public.guest_photos;
+DROP POLICY IF EXISTS "Allow public insert guest_photos" ON public.guest_photos;
+DROP POLICY IF EXISTS "Allow public update guest_photos" ON public.guest_photos;
+DROP POLICY IF EXISTS "Allow public update guest_photos likes" ON public.guest_photos;
+DROP POLICY IF EXISTS "Allow public delete guest_photos" ON public.guest_photos;
+
 CREATE POLICY "Allow public read guest_photos" ON public.guest_photos FOR SELECT USING (true);
 CREATE POLICY "Allow public insert guest_photos" ON public.guest_photos FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update guest_photos" ON public.guest_photos FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete guest_photos" ON public.guest_photos FOR DELETE USING (true);
 
--- 6. Setup Storage Bucket for Audio Voice Notes, Videos, and Photos
--- (Go to Storage in Supabase -> Create bucket named: "wedding-media" with Public Access = ON)
+-- 8. Helper Function for atomic wish like increments
+CREATE OR REPLACE FUNCTION increment_wish_likes(wish_id UUID)
+RETURNS void AS $$
+BEGIN
+    UPDATE public.wishes
+    SET likes = likes + 1
+    WHERE id = wish_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 9. Setup Storage Bucket for Audio Voice Notes, Videos, and Photos
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('wedding-media', 'wedding-media', true)
 ON CONFLICT (id) DO NOTHING;
 
+DROP POLICY IF EXISTS "Allow public read wedding-media" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public upload wedding-media" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public delete wedding-media" ON storage.objects;
+
 CREATE POLICY "Allow public read wedding-media" ON storage.objects FOR SELECT USING (bucket_id = 'wedding-media');
 CREATE POLICY "Allow public upload wedding-media" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'wedding-media');
+CREATE POLICY "Allow public delete wedding-media" ON storage.objects FOR DELETE USING (bucket_id = 'wedding-media');
