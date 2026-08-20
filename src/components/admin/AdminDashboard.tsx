@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  isSupabaseConfigured,
   fetchLiveRsvps,
   fetchLiveWishes,
+  fetchGuestPhotos,
   deleteLiveRsvp,
   deleteLiveWish,
+  deleteGuestPhoto,
   type RsvpRecord,
+  type GuestPhotoItem,
 } from '../../lib/supabase'
 import type { WishItem } from '../../types/wedding'
 import { weddingData } from '../../data/weddingData'
@@ -24,10 +26,12 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   // Data
   const [rsvps, setRsvps] = useState<RsvpRecord[]>([])
   const [wishes, setWishes] = useState<WishItem[]>([])
+  const [guestPhotos, setGuestPhotos] = useState<GuestPhotoItem[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'rsvps' | 'media' | 'wishes'>('rsvps')
+  const [activeTab, setActiveTab] = useState<'rsvps' | 'photos' | 'media'>('rsvps')
   const [rsvpFilter, setRsvpFilter] = useState<'all' | 'yes' | 'maybe' | 'no'>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<GuestPhotoItem | null>(null)
 
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null)
@@ -46,12 +50,14 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
 
   const loadAdminData = async () => {
     setLoading(true)
-    const [liveRsvps, liveWishes] = await Promise.all([
+    const [liveRsvps, liveWishes, livePhotos] = await Promise.all([
       fetchLiveRsvps(),
       fetchLiveWishes(weddingData.initialWishes),
+      fetchGuestPhotos(),
     ])
     setRsvps(liveRsvps)
     setWishes(liveWishes)
+    setGuestPhotos(livePhotos)
     setLoading(false)
   }
 
@@ -64,11 +70,13 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
       }
 
       window.addEventListener('wedding_data_updated', handleUpdate)
+      window.addEventListener('wedding_photos_updated', handleUpdate)
       window.addEventListener('storage', handleUpdate)
       window.addEventListener('focus', handleUpdate)
 
       return () => {
         window.removeEventListener('wedding_data_updated', handleUpdate)
+        window.removeEventListener('wedding_photos_updated', handleUpdate)
         window.removeEventListener('storage', handleUpdate)
         window.removeEventListener('focus', handleUpdate)
       }
@@ -88,13 +96,9 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     .filter((r) => r.attendance === 'yes' && (r.events === 'both' || r.events === 'reception'))
     .reduce((sum, r) => sum + (parseInt(r.guests, 10) || 1), 0)
 
-  const pureVegCount = rsvps
-    .filter((r) => r.attendance === 'yes' && r.dietary === 'pure-veg')
-    .reduce((sum, r) => sum + (parseInt(r.guests, 10) || 1), 0)
-
   const voiceNotesCount = wishes.filter((w) => Boolean(w.audioUrl)).length
 
-  // CSV Export
+  // CSV Export for RSVPs
   const exportToCSV = () => {
     const headers = ['Name', 'Phone', 'Guests', 'Attendance', 'Events', 'Dietary', 'Message', 'Date']
     const rows = rsvps.map((r) => [
@@ -151,6 +155,24 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     }
   }
 
+  // 🗑️ Delete Guest Photo Action
+  const handleDeletePhoto = async (photoId: string) => {
+    if (confirm('Are you sure you want to delete this guest photo from the wedding album?')) {
+      await deleteGuestPhoto(photoId)
+      setGuestPhotos((prev) => prev.filter((p) => p.id !== photoId))
+      if (selectedPhotoPreview?.id === photoId) {
+        setSelectedPhotoPreview(null)
+      }
+      // Update local storage cache and dispatch event for gallery update
+      const existing: GuestPhotoItem[] = JSON.parse(localStorage.getItem('wedding_guest_photos') || '[]')
+      localStorage.setItem(
+        'wedding_guest_photos',
+        JSON.stringify(existing.filter((p) => p.id !== photoId))
+      )
+      window.dispatchEvent(new Event('wedding_photos_updated'))
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -166,7 +188,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                 Wedding Family Admin Portal
               </h2>
               <p className="font-telugu text-gold-dark text-xs font-semibold">
-                మోహన్ &amp; లీపిక వివాహ అతిథుల నివేదిక
+                మోహన్ &amp; లీపిక వివాహ అతిథుల నివేదిక &amp; ఫోటోల నిర్వహణ
               </p>
             </div>
           </div>
@@ -189,7 +211,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                 Family Security PIN Required
               </h3>
               <p className="font-body text-xs text-[#7a4a4a] max-w-sm">
-                Enter your 4-digit wedding passcode to access private guest RSVPs and voice blessings.
+                Enter your 4-digit wedding passcode to access private guest RSVPs, guest photos, and voice blessings.
               </p>
             </div>
 
@@ -221,37 +243,45 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             
             {/* Overview Metric Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <div className="rounded-2xl bg-white border border-gold/35 p-4 shadow-sm text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="rounded-2xl bg-white border border-gold/35 p-3.5 shadow-sm text-center">
                 <p className="text-2xl font-bold text-crimson font-display">{totalGuestsAttending}</p>
-                <p className="font-display text-[11px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
+                <p className="font-display text-[10.5px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
                   Attending Guests
                 </p>
-                <p className="text-[10px] text-[#7a4a4a]">హాజరయ్యే అతిథులు</p>
+                <p className="text-[9px] text-[#7a4a4a]">హాజరయ్యే అతిథులు</p>
               </div>
 
-              <div className="rounded-2xl bg-white border border-gold/35 p-4 shadow-sm text-center">
+              <div className="rounded-2xl bg-white border border-gold/35 p-3.5 shadow-sm text-center">
                 <p className="text-2xl font-bold text-crimson font-display">{weddingCount}</p>
-                <p className="font-display text-[11px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
+                <p className="font-display text-[10.5px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
                   Sumuhurtham (Hyd)
                 </p>
-                <p className="text-[10px] text-[#7a4a4a]">కళ్యాణ మహోత్సవం</p>
+                <p className="text-[9px] text-[#7a4a4a]">కళ్యాణ మహోత్సవం</p>
               </div>
 
-              <div className="rounded-2xl bg-white border border-gold/35 p-4 shadow-sm text-center">
+              <div className="rounded-2xl bg-white border border-gold/35 p-3.5 shadow-sm text-center">
                 <p className="text-2xl font-bold text-crimson font-display">{receptionCount}</p>
-                <p className="font-display text-[11px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
+                <p className="font-display text-[10.5px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
                   Reception (Vizag)
                 </p>
-                <p className="text-[10px] text-[#7a4a4a]">విశాఖపట్నం విందు</p>
+                <p className="text-[9px] text-[#7a4a4a]">విశాఖపట్నం విందు</p>
               </div>
 
-              <div className="rounded-2xl bg-white border border-gold/35 p-4 shadow-sm text-center">
+              <div className="rounded-2xl bg-white border border-gold/35 p-3.5 shadow-sm text-center">
+                <p className="text-2xl font-bold text-crimson font-display">{guestPhotos.length}</p>
+                <p className="font-display text-[10.5px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
+                  📸 Guest Snaps
+                </p>
+                <p className="text-[9px] text-[#7a4a4a]">అతిథుల ఫోటోలు</p>
+              </div>
+
+              <div className="rounded-2xl bg-white border border-gold/35 p-3.5 shadow-sm text-center">
                 <p className="text-2xl font-bold text-crimson font-display">{voiceNotesCount}</p>
-                <p className="font-display text-[11px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
+                <p className="font-display text-[10.5px] uppercase tracking-wider text-gold-dark font-semibold mt-0.5">
                   Voice Blessings
                 </p>
-                <p className="text-[10px] text-[#7a4a4a]">ఆడియో సందేశాలు</p>
+                <p className="text-[9px] text-[#7a4a4a]">ఆడియో సందేశాలు</p>
               </div>
             </div>
 
@@ -267,6 +297,16 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                   }`}
                 >
                   📋 Guest RSVPs ({rsvps.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('photos')}
+                  className={`px-4 py-2 rounded-full text-xs font-display font-bold transition-all ${
+                    activeTab === 'photos'
+                      ? 'bg-crimson text-gold-light shadow-md'
+                      : 'text-[#5c0a0a] hover:bg-gold/10'
+                  }`}
+                >
+                  📸 Guest Photos Moderation ({guestPhotos.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('media')}
@@ -392,7 +432,86 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
               </div>
             )}
 
-            {/* ── Tab 2: Media & Voice Blessings Vault ── */}
+            {/* ── Tab 2: 📸 Guest Photos Moderation ── */}
+            {activeTab === 'photos' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-display text-xs text-[#5c0a0a] font-semibold">
+                    Manage and moderate all guest-uploaded photos. Delete any unwanted or duplicate photos with 1 click.
+                  </p>
+                  <span className="text-xs font-display text-gold-dark font-bold">
+                    {guestPhotos.length} Photos in Album
+                  </span>
+                </div>
+
+                {guestPhotos.length === 0 ? (
+                  <div className="text-center py-12 bg-white rounded-2xl border border-gold/30 space-y-2">
+                    <span className="text-3xl">📷</span>
+                    <p className="font-display font-bold text-crimson text-sm">
+                      No Guest Photos Uploaded Yet
+                    </p>
+                    <p className="text-xs text-[#7a4a4a]">
+                      Photos uploaded by wedding guests in the Captured Moments section will appear here for moderation.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                    {guestPhotos.map((photo) => (
+                      <div
+                        key={photo.id}
+                        className="group relative rounded-2xl overflow-hidden bg-white border border-gold/40 shadow-sm flex flex-col justify-between"
+                      >
+                        <div
+                          className="relative aspect-square cursor-pointer overflow-hidden bg-[#fdf6e8]"
+                          onClick={() => setSelectedPhotoPreview(photo)}
+                        >
+                          <img
+                            src={photo.photo_url}
+                            alt={photo.caption || photo.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+
+                        <div className="p-2.5 space-y-1 bg-white">
+                          <p className="font-display font-bold text-crimson text-xs truncate">
+                            {photo.name}
+                          </p>
+                          {photo.caption && (
+                            <p className="font-body text-[11px] text-[#5c0a0a] line-clamp-1 italic">
+                              "{photo.caption}"
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between pt-1.5 border-t border-gold/15">
+                            <span className="text-[10px] text-[#7a4a4a]">❤️ {photo.likes || 1} Likes</span>
+                            <div className="flex items-center gap-1.5">
+                              <a
+                                href={photo.photo_url}
+                                download={`guest_photo_${photo.name}.webp`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-gold-dark hover:underline font-bold"
+                                title="Download Photo"
+                              >
+                                ⬇
+                              </a>
+                              <button
+                                onClick={() => handleDeletePhoto(photo.id)}
+                                className="px-2 py-0.5 rounded-md bg-red-100 hover:bg-red-200 text-red-700 text-[10px] font-bold transition-colors"
+                                title="Delete Unwanted Photo"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Tab 3: Media & Voice Blessings Vault ── */}
             {activeTab === 'media' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -479,6 +598,54 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
         )}
 
       </div>
+
+      {/* ── Photo Preview Modal in Admin ── */}
+      {selectedPhotoPreview && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 cursor-pointer"
+          onClick={() => setSelectedPhotoPreview(null)}
+        >
+          <div className="relative max-w-lg w-full bg-[#fdfaf2] p-4 rounded-3xl border-2 border-gold space-y-3 cursor-default">
+            <div className="flex items-center justify-between pb-2 border-b border-gold/30">
+              <h4 className="font-display font-bold text-crimson text-sm">
+                Photo by {selectedPhotoPreview.name}
+              </h4>
+              <button
+                onClick={() => setSelectedPhotoPreview(null)}
+                className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <img
+              src={selectedPhotoPreview.photo_url}
+              alt={selectedPhotoPreview.name}
+              className="w-full max-h-[60vh] object-contain rounded-2xl shadow-md mx-auto"
+            />
+            {selectedPhotoPreview.caption && (
+              <p className="font-body text-xs text-[#5c0a0a] text-center italic">
+                "{selectedPhotoPreview.caption}"
+              </p>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-gold/20">
+              <a
+                href={selectedPhotoPreview.photo_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-1.5 rounded-full bg-gold/20 text-crimson text-xs font-display font-semibold"
+              >
+                ⬇ Open Full Res
+              </a>
+              <button
+                onClick={() => handleDeletePhoto(selectedPhotoPreview.id)}
+                className="px-4 py-1.5 rounded-full bg-red-600 text-white text-xs font-display font-bold hover:bg-red-700"
+              >
+                🗑️ Delete Photo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
