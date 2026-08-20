@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { NavBar } from './components/common/NavBar'
 import { MobileBottomBar } from './components/common/MobileBottomBar'
 import { HeroSection } from './components/hero/HeroSection'
@@ -10,8 +11,29 @@ import { GallerySection } from './components/gallery/GallerySection'
 import { WishesWall } from './components/wishes/WishesWall'
 import { RsvpSection } from './components/rsvp/RsvpSection'
 import { Footer } from './components/common/Footer'
+import { AdminDashboard } from './components/admin/AdminDashboard'
 
 export default function App() {
+  const [isAdminOpen, setIsAdminOpen] = useState(false)
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#admin') {
+        setIsAdminOpen(true)
+      }
+    }
+    handleHash()
+    window.addEventListener('hashchange', handleHash)
+    return () => window.removeEventListener('hashchange', handleHash)
+  }, [])
+
+  const handleCloseAdmin = () => {
+    setIsAdminOpen(false)
+    if (window.location.hash === '#admin') {
+      history.replaceState(null, '', window.location.pathname)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-ivory font-body text-[#1c0a0a] selection:bg-gold selection:text-white pb-14 lg:pb-0">
       {/* Fixed Luxury Desktop & Mobile Header Navigation */}
@@ -49,6 +71,9 @@ export default function App() {
 
       {/* Royal Footer */}
       <Footer />
+
+      {/* 🔒 Family Admin Dashboard Modal */}
+      <AdminDashboard isOpen={isAdminOpen} onClose={handleCloseAdmin} />
     </div>
   )
 }

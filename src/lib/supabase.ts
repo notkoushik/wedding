@@ -169,6 +169,47 @@ export async function submitLiveRsvp(rsvp: RsvpRecord): Promise<boolean> {
   }
 }
 
+export async function fetchLiveRsvps(): Promise<RsvpRecord[]> {
+  if (!supabase) {
+    return JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('rsvps')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error || !data) {
+      return JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+    }
+
+    return data
+  } catch (err) {
+    return JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+  }
+}
+
+export async function deleteLiveRsvp(id: string): Promise<boolean> {
+  if (!supabase) return true
+  try {
+    const { error } = await supabase.from('rsvps').delete().eq('id', id)
+    return !error
+  } catch {
+    return false
+  }
+}
+
+export async function deleteLiveWish(id: string): Promise<boolean> {
+  if (!supabase) return true
+  try {
+    const { error } = await supabase.from('wishes').delete().eq('id', id)
+    return !error
+  } catch {
+    return false
+  }
+}
+
 // Helper: Time ago formatter
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000)

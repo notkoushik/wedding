@@ -83,6 +83,18 @@ export function Footer() {
           <p className="font-display text-gold/40 text-[10px] uppercase tracking-[0.35em]">
             ♡ Wishing The Couple A Lifetime of Love &amp; Togetherness ♡
           </p>
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                window.location.hash = 'admin'
+                window.dispatchEvent(new Event('hashchange'))
+              }}
+              className="text-[10px] font-display text-gold/30 hover:text-gold/80 transition-colors underline flex items-center gap-1 mx-auto"
+            >
+              <span>🔒</span>
+              <span>Family Admin Portal (RSVPs &amp; Voice Notes)</span>
+            </button>
+          </div>
         </div>
       </div>
 
