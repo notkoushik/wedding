@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { SectionLabel, GoldDivider, GoldStrip } from '../common/GoldDivider'
 import { OrnateCard } from '../common/OrnateCard'
 import { weddingData } from '../../data/weddingData'
+import { isSupabaseConfigured, submitLiveRsvp } from '../../lib/supabase'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -34,22 +35,33 @@ export function RsvpSection() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    // Save to local storage for offline / quick inspection
-    setTimeout(() => {
-      const existingRsvps = JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
-      const newEntry = {
-        ...form,
-        submittedAt: new Date().toISOString(),
-      }
-      localStorage.setItem('wedding_rsvps', JSON.stringify([...existingRsvps, newEntry]))
+    // Save to local storage for offline / immediate inspection
+    const existingRsvps = JSON.parse(localStorage.getItem('wedding_rsvps') || '[]')
+    const newEntry = {
+      ...form,
+      submittedAt: new Date().toISOString(),
+    }
+    localStorage.setItem('wedding_rsvps', JSON.stringify([...existingRsvps, newEntry]))
 
-      setLoading(false)
-      setSubmitted(true)
-    }, 600)
+    // Save to Supabase if configured
+    if (isSupabaseConfigured) {
+      await submitLiveRsvp({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        guests: form.guests,
+        attendance: form.attendance,
+        events: form.events,
+        dietary: form.dietary,
+        message: form.message.trim() || undefined,
+      })
+    }
+
+    setLoading(false)
+    setSubmitted(true)
   }
 
   const inputCls = `w-full rounded-xl px-4 py-3 font-body text-sm text-[#1c0a0a] bg-white

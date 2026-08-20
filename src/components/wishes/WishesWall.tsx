@@ -1,8 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
-import { SectionLabel, GoldDivider } from '../common/GoldDivider'
+import { SectionLabel } from '../common/GoldDivider'
 import { OrnateCard } from '../common/OrnateCard'
 import type { WishItem } from '../../types/wedding'
 import { weddingData } from '../../data/weddingData'
+import {
+  isSupabaseConfigured,
+  fetchLiveWishes,
+  submitLiveWish,
+  likeLiveWish,
+  uploadWeddingMedia,
+} from '../../lib/supabase'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -27,6 +34,18 @@ export function WishesWall() {
     return saved ? JSON.parse(saved) : weddingData.initialWishes
   })
 
+  // Load live wishes from Supabase if configured
+  useEffect(() => {
+    if (isSupabaseConfigured) {
+      fetchLiveWishes(weddingData.initialWishes).then((live) => {
+        if (live && live.length > 0) {
+          setWishes(live)
+          localStorage.setItem('wedding_wishes', JSON.stringify(live))
+        }
+      })
+    }
+  }, [])
+
   // Form State
   const [form, setForm] = useState({
     name: '',
@@ -35,10 +54,13 @@ export function WishesWall() {
     message: '',
     videoUrl: '',
   })
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null)
   const [recordingTime, setRecordingTime] = useState(0)
   const [isRecording, setIsRecording] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   // Media recorder refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -72,8 +94,9 @@ export function WishesWall() {
       }
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
-        const audioUrl = URL.createObjectURL(audioBlob)
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        setAudioBlob(blob)
+        const audioUrl = URL.createObjectURL(blob)
         setRecordedAudioUrl(audioUrl)
         stream.getTracks().forEach((track) => track.stop())
       }
@@ -107,6 +130,7 @@ export function WishesWall() {
   }
 
   const deleteVoiceNote = () => {
+    setAudioBlob(null)
     setRecordedAudioUrl(null)
     setRecordingTime(0)
     setIsRecording(false)
@@ -119,6 +143,7 @@ export function WishesWall() {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setPhotoFile(file)
       const reader = new FileReader()
       reader.onloadend = () => {
         setPhotoPreview(reader.result as string)
@@ -145,32 +170,67 @@ export function WishesWall() {
     }
   }
 
-  const handleLike = (id: string) => {
+  const handleLike = async (id: string) => {
     if (likedIds.has(id)) return
     setLikedIds((prev) => new Set(prev).add(id))
+    
+    // Update locally
     setWishes((prev) => {
       const updated = prev.map((w) => (w.id === id ? { ...w, likes: w.likes + 1 } : w))
       localStorage.setItem('wedding_wishes', JSON.stringify(updated))
       return updated
     })
+
+    // Update in Supabase
+    if (isSupabaseConfigured) {
+      likeLiveWish(id)
+    }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name.trim()) return
 
-    const newWish: WishItem = {
-      id: Date.now().toString(),
+    setIsUploading(true)
+
+    let finalAudioUrl: string | undefined = recordedAudioUrl || undefined
+    let finalPhotoUrl: string | undefined = photoPreview || undefined
+
+    // Upload to Supabase Storage if configured
+    if (isSupabaseConfigured) {
+      if (audioBlob) {
+        const uploadedAudio = await uploadWeddingMedia(audioBlob, 'audio', 'webm')
+        if (uploadedAudio) finalAudioUrl = uploadedAudio
+      }
+      if (photoFile) {
+        const ext = photoFile.name.split('.').pop() || 'jpg'
+        const uploadedPhoto = await uploadWeddingMedia(photoFile, 'photos', ext)
+        if (uploadedPhoto) finalPhotoUrl = uploadedPhoto
+      }
+    }
+
+    const wishPayload = {
       name: form.name.trim(),
       relation: form.relation.trim() || 'Well Wisher',
       location: form.location.trim() || undefined,
       message: form.message.trim() || 'Wishing Mohan Praneeth & Leepika lifelong joy and blessings!',
-      audioUrl: recordedAudioUrl || undefined,
+      audioUrl: finalAudioUrl,
       audioDuration: recordingTime > 0 ? recordingTime : undefined,
       videoUrl: form.videoUrl.trim() || undefined,
-      photoUrl: photoPreview || undefined,
-      timeAgo: 'Just now',
+      photoUrl: finalPhotoUrl,
       likes: 1,
+    }
+
+    let createdWish: WishItem | null = null
+
+    if (isSupabaseConfigured) {
+      createdWish = await submitLiveWish(wishPayload)
+    }
+
+    const newWish: WishItem = createdWish || {
+      id: Date.now().toString(),
+      ...wishPayload,
+      timeAgo: 'Just now',
     }
 
     const updated = [newWish, ...wishes]
@@ -179,9 +239,12 @@ export function WishesWall() {
 
     // Reset Form
     setForm({ name: '', relation: '', location: '', message: '', videoUrl: '' })
+    setPhotoFile(null)
     setPhotoPreview(null)
+    setAudioBlob(null)
     setRecordedAudioUrl(null)
     setRecordingTime(0)
+    setIsUploading(false)
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 4000)
   }
@@ -336,7 +399,7 @@ export function WishesWall() {
                             {playingAudioId === 'preview' ? '⏸' : '▶'}
                           </button>
                           <span className="font-display text-xs text-[#5c0a0a] font-medium">
-                            Voice Note Attached ({recordingTime || 15}s)
+                            Voice Note Ready ({recordingTime || 15}s)
                           </span>
                         </div>
                         <button
@@ -385,7 +448,7 @@ export function WishesWall() {
                       <img src={photoPreview} alt="Memory Preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
-                        onClick={() => setPhotoPreview(null)}
+                        onClick={() => { setPhotoFile(null); setPhotoPreview(null) }}
                         className="absolute top-1 right-1 w-5 h-5 rounded-full bg-crimson text-white text-[10px] flex items-center justify-center"
                       >
                         ✕
@@ -395,10 +458,11 @@ export function WishesWall() {
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-full font-display text-xs uppercase tracking-[0.2em] font-semibold text-white bg-gradient-to-r from-crimson-dark via-crimson to-crimson-dark hover:brightness-110 shadow-lg shadow-crimson/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                    disabled={isUploading}
+                    className="w-full py-3 rounded-full font-display text-xs uppercase tracking-[0.2em] font-semibold text-white bg-gradient-to-r from-crimson-dark via-crimson to-crimson-dark hover:brightness-110 shadow-lg shadow-crimson/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <span>🌸</span>
-                    <span>Send Blessing / సమర్పించండి</span>
+                    <span>{isUploading ? 'Uploading & Sending...' : 'Send Blessing / సమర్పించండి'}</span>
                   </button>
 
                   {submitted && (
