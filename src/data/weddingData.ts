@@ -386,7 +386,7 @@ export const weddingData: WeddingSiteConfig = {
       titleEnglish: 'SRI SEETHA RAMULA KALYANAM',
       subtitle: '🪔 Auspicious Kalyana Vaibhogam & Sacred Shehnai',
       url: seethaKalyanamAudio,
-      cover: coupleImg,
+      cover: mangalyadharanaImg,
     },
   ],
 
