@@ -105,16 +105,54 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     }
   }
 
-  const handleAddSong = (e: React.FormEvent) => {
+  const [songAudioFile, setSongAudioFile] = useState<File | null>(null)
+  const [isSongUploading, setIsSongUploading] = useState(false)
+
+  const handleSongFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSongAudioFile(file)
+      // Auto-populate English title if empty
+      if (!newSong.titleEnglish) {
+        const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ')
+        setNewSong((prev) => ({
+          ...prev,
+          titleEnglish: cleanName.toUpperCase(),
+          titleTelugu: prev.titleTelugu || cleanName,
+        }))
+      }
+    }
+  }
+
+  const handleAddSong = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newSong.url.trim() || !newSong.titleEnglish.trim()) return
+    if (!newSong.url.trim() && !songAudioFile) {
+      alert('Please provide an audio MP3 URL or select an audio file from your device!')
+      return
+    }
+    if (!newSong.titleEnglish.trim()) return
+
+    setIsSongUploading(true)
+    let finalAudioUrl = newSong.url.trim()
+
+    // If an audio file is selected, upload or create blob URL
+    if (songAudioFile) {
+      const ext = songAudioFile.name.split('.').pop() || 'mp3'
+      const uploadedUrl = await uploadWeddingMedia(songAudioFile, 'audio', ext)
+      if (uploadedUrl) {
+        finalAudioUrl = uploadedUrl
+      } else {
+        // Fallback to local object URL for offline/testing
+        finalAudioUrl = URL.createObjectURL(songAudioFile)
+      }
+    }
 
     const newTrack: AudioTrack = {
       id: Date.now(),
       titleTelugu: newSong.titleTelugu.trim() || newSong.titleEnglish.trim(),
       titleEnglish: newSong.titleEnglish.trim().toUpperCase(),
       subtitle: newSong.subtitle.trim() || '🪔 Sacred Telugu Wedding Music',
-      url: newSong.url.trim(),
+      url: finalAudioUrl,
       cover: newSong.cover.trim() || undefined,
     }
 
@@ -124,6 +162,8 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
     window.dispatchEvent(new Event('playlist_updated'))
 
     setNewSong({ titleTelugu: '', titleEnglish: '', subtitle: '', url: '', cover: '' })
+    setSongAudioFile(null)
+    setIsSongUploading(false)
     setSongSaveSuccess(true)
     setTimeout(() => setSongSaveSuccess(false), 3000)
   }
@@ -899,18 +939,47 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                         />
                       </div>
 
-                      <div>
-                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
-                          Audio Stream / MP3 URL *
+                      {/* Audio Source: File Upload OR MP3 URL */}
+                      <div className="space-y-2 rounded-2xl bg-gold/10 p-3 border border-gold/30">
+                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block font-bold">
+                          Audio Source (MP3 File or URL) *
                         </label>
-                        <input
-                          type="url"
-                          required
-                          value={newSong.url}
-                          onChange={(e) => setNewSong({ ...newSong, url: e.target.value })}
-                          placeholder="e.g. https://.../audio.mp3"
-                          className="w-full rounded-xl px-3.5 py-2 font-body text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
-                        />
+
+                        {/* 1. Pick File */}
+                        <div>
+                          <label className="text-[10px] text-gold-dark font-semibold block mb-0.5">
+                            Option A: Pick Audio File from Device:
+                          </label>
+                          <input
+                            type="file"
+                            accept="audio/*,.mp3,.m4a,.wav,.weba"
+                            onChange={handleSongFileChange}
+                            className="w-full text-[11px] font-body text-[#3d0808] file:mr-2 file:py-1 file:px-2.5 file:rounded-full file:border-0 file:text-[10px] file:font-display file:font-bold file:bg-crimson file:text-white hover:file:bg-crimson-dark cursor-pointer"
+                          />
+                          {songAudioFile && (
+                            <p className="text-[10px] text-emerald-700 font-bold mt-1">
+                              ✓ Selected: {songAudioFile.name} ({(songAudioFile.size / 1024 / 1024).toFixed(2)} MB)
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="text-center text-[10px] font-display text-gold-dark font-bold">
+                          ── OR ──
+                        </div>
+
+                        {/* 2. Audio URL */}
+                        <div>
+                          <label className="text-[10px] text-gold-dark font-semibold block mb-0.5">
+                            Option B: Paste Direct Audio / Stream URL:
+                          </label>
+                          <input
+                            type="url"
+                            value={newSong.url}
+                            onChange={(e) => setNewSong({ ...newSong, url: e.target.value })}
+                            placeholder="e.g. https://.../wedding_song.mp3"
+                            className="w-full rounded-xl px-3.5 py-1.5 font-body text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
+                          />
+                        </div>
                       </div>
 
                       <div>
