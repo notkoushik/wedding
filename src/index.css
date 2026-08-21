@@ -265,3 +265,22 @@ body {
   clip-path: ellipse(55% 100% at 50% 100%);
 }
 
+/* 🖼️ Custom Royal Gold Scrollbar for Gallery Photo Wall */
+.custom-gold-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-gold-scrollbar::-webkit-scrollbar-track {
+  background: rgba(201, 168, 76, 0.08);
+  border-radius: 9999px;
+}
+.custom-gold-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffd700, #c9a84c);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.custom-gold-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ffd700;
+}
+
+
