@@ -36,6 +36,7 @@ export function GallerySection() {
   // 🌟 Main Flagship View: Polaroid Board
   const [viewMode, setViewMode] = useState<GalleryViewMode>('polaroid-board')
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all')
+  const [mobileGridCols, setMobileGridCols] = useState<1 | 2>(2)
 
   // Guest Photos Stream & Interactions
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoItem[]>([])
@@ -85,7 +86,7 @@ export function GallerySection() {
     likeGuestPhoto(photoId)
   }
 
-  // Combined authentic photos list (Couple Official + Live Guest Uploads)
+  // Combined authentic photos list (Couple Official + Ritual Traditions + Live Guest Uploads)
   const officialMoments: GuestPhotoItem[] = [
     {
       id: 'official-couple',
@@ -95,12 +96,20 @@ export function GallerySection() {
       likes: 136,
       created_at: 'Official Portrait',
     },
+    ...weddingData.rituals.map((r, idx) => ({
+      id: `ritual-${r.id}`,
+      name: `${r.titleTelugu}`,
+      caption: `${r.titleEnglish} · పవిత్ర సాంప్రదాయం`,
+      photo_url: r.image,
+      likes: 45 + idx * 7,
+      created_at: 'Auspicious Ritual',
+    })),
   ]
 
   const allDisplayPhotos = [...officialMoments, ...guestPhotos]
     .filter((p) => {
-      if (activeFilter === 'couple' && p.id !== 'official-couple') return false
-      if (activeFilter === 'guests' && p.id === 'official-couple') return false
+      if (activeFilter === 'couple' && !p.id.startsWith('official-') && !p.id.startsWith('ritual-')) return false
+      if (activeFilter === 'guests' && (p.id.startsWith('official-') || p.id.startsWith('ritual-'))) return false
       if (activeFilter === 'trending' && (p.likes || 0) < 2) return true
       return true
     })
@@ -232,6 +241,32 @@ export function GallerySection() {
                 ))}
               </div>
 
+              {/* 📱 Mobile Grid Density Toggle (Visible on Mobile only) */}
+              <div className="flex items-center gap-1 sm:hidden bg-[#f4e8cb] p-1 rounded-2xl border border-gold/30">
+                <button
+                  onClick={() => setMobileGridCols(2)}
+                  className={`px-2.5 py-1 rounded-xl text-[10px] font-display font-bold transition-all ${
+                    mobileGridCols === 2
+                      ? 'bg-crimson text-gold-light shadow-xs'
+                      : 'text-[#5c0a0a]'
+                  }`}
+                  title="2-column compact grid"
+                >
+                  📱 2-Up
+                </button>
+                <button
+                  onClick={() => setMobileGridCols(1)}
+                  className={`px-2.5 py-1 rounded-xl text-[10px] font-display font-bold transition-all ${
+                    mobileGridCols === 1
+                      ? 'bg-crimson text-gold-light shadow-xs'
+                      : 'text-[#5c0a0a]'
+                  }`}
+                  title="1-column detail card"
+                >
+                  🔲 1-Up
+                </button>
+              </div>
+
               {/* Category Filters */}
               <div className="flex items-center gap-1.5 flex-wrap">
                 {[
@@ -274,20 +309,24 @@ export function GallerySection() {
              ══════════════════════════════════════════════════════════════ */}
           {viewMode === 'polaroid-board' && (
             <div
-              className="relative rounded-3xl overflow-hidden border-2 border-gold/60 shadow-[0_15px_50px_rgba(201,168,76,0.2)] p-4 sm:p-8"
+              className="relative rounded-3xl overflow-hidden border-2 border-gold/60 shadow-[0_15px_50px_rgba(201,168,76,0.2)] p-2.5 sm:p-8"
               style={{
                 background: 'linear-gradient(135deg, #fcf8f0 0%, #f6edd7 50%, #fcf8f0 100%)',
               }}
             >
               {/* Internal Smooth Scroll Container */}
-              <div className="max-h-[580px] sm:max-h-[700px] overflow-y-auto pr-1 sm:pr-2 custom-gold-scrollbar">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 py-4">
+              <div className="max-h-[620px] sm:max-h-[720px] overflow-y-auto pr-1 sm:pr-2 custom-gold-scrollbar">
+                <div
+                  className={`grid ${
+                    mobileGridCols === 2 ? 'grid-cols-2 gap-2.5 sm:gap-6' : 'grid-cols-1 gap-5 sm:gap-8'
+                  } sm:grid-cols-2 lg:grid-cols-3 py-2 sm:py-4`}
+                >
                   {allDisplayPhotos.map((item, index) => {
                     const tilts = [
-                      '-rotate-1.5 hover:rotate-0',
-                      'rotate-1.5 hover:rotate-0',
-                      '-rotate-1 hover:rotate-0',
-                      'rotate-2 hover:rotate-0',
+                      '-rotate-1 sm:-rotate-1.5 hover:rotate-0',
+                      'rotate-1 sm:rotate-1.5 hover:rotate-0',
+                      '-rotate-0.5 sm:-rotate-1 hover:rotate-0',
+                      'rotate-1 sm:rotate-2 hover:rotate-0',
                       'rotate-0 hover:-rotate-1',
                     ]
                     const tiltClass = tilts[index % tilts.length]
@@ -296,11 +335,13 @@ export function GallerySection() {
                     return (
                       <div
                         key={item.id || index}
-                        className={`group relative bg-white p-3.5 sm:p-4 pb-4 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_40px_rgba(201,168,76,0.3)] transition-all duration-300 hover:-translate-y-2.5 ${tiltClass} border border-gold/30 flex flex-col justify-between`}
+                        className={`group relative bg-white ${
+                          mobileGridCols === 2 ? 'p-2 sm:p-4 pb-2.5 sm:pb-4' : 'p-3.5 sm:p-4 pb-4'
+                        } rounded-xl shadow-[0_8px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_rgba(201,168,76,0.3)] transition-all duration-300 hover:-translate-y-1.5 ${tiltClass} border border-gold/30 flex flex-col justify-between`}
                       >
                         {/* 📎 Decorative Top Washi Tape or Golden Pin */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-5 bg-gradient-to-r from-gold/30 via-gold/50 to-gold/30 backdrop-blur-md border-t border-b border-gold/60 -rotate-1 rounded-sm shadow-xs z-10 flex items-center justify-center">
-                          <span className="text-[9px] font-display text-crimson font-bold tracking-widest uppercase opacity-75">
+                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-16 sm:w-24 h-4 sm:h-5 bg-gradient-to-r from-gold/30 via-gold/50 to-gold/30 backdrop-blur-md border-t border-b border-gold/60 -rotate-1 rounded-sm shadow-xs z-10 flex items-center justify-center">
+                          <span className="text-[8px] sm:text-[9px] font-display text-crimson font-bold tracking-widest uppercase opacity-75">
                             ✦ Vivah ✦
                           </span>
                         </div>
@@ -319,33 +360,37 @@ export function GallerySection() {
 
                           {/* Hover Magnifier Tag */}
                           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <span className="px-3 py-1 rounded-full bg-gold text-[#3a0505] text-[11px] font-display font-bold shadow-lg">
-                              🔍 Tap to Expand
+                            <span className="px-2.5 py-0.5 rounded-full bg-gold text-[#3a0505] text-[10px] sm:text-[11px] font-display font-bold shadow-lg">
+                              🔍 Expand
                             </span>
                           </div>
                         </div>
 
                         {/* Polaroid Caption & Details */}
-                        <div className="mt-3.5 px-1 space-y-2">
-                          <div className="flex items-start justify-between gap-2">
+                        <div className="mt-2.5 sm:mt-3.5 px-0.5 sm:px-1 space-y-1.5 sm:space-y-2">
+                          <div className="flex items-start justify-between gap-1">
                             <div className="min-w-0 flex-1">
-                              <h4 className="font-calligraphy text-crimson text-2xl font-bold leading-none truncate">
+                              <h4
+                                className={`font-calligraphy text-crimson ${
+                                  mobileGridCols === 2 ? 'text-lg sm:text-2xl' : 'text-2xl'
+                                } font-bold leading-tight truncate`}
+                              >
                                 {item.name}
                               </h4>
                               {item.caption ? (
-                                <p className="font-display text-[12px] text-[#7a4a4a] italic line-clamp-1 mt-0.5">
+                                <p className="font-display text-[10px] sm:text-[12px] text-[#7a4a4a] italic line-clamp-1">
                                   "{item.caption}"
                                 </p>
                               ) : (
-                                <p className="font-display text-[10px] text-gold-dark italic">
-                                  Auspicious Wedding Memory
+                                <p className="font-display text-[9px] sm:text-[10px] text-gold-dark italic">
+                                  Wedding Moment
                                 </p>
                               )}
                             </div>
                           </div>
 
                           {/* 💖 Dynamic Interactive Action Bar (Likes, Comments, Download) */}
-                          <div className="pt-2 border-t border-gold/25 flex items-center justify-between">
+                          <div className="pt-1.5 sm:pt-2 border-t border-gold/25 flex items-center justify-between gap-1">
                             
                             {/* Likes Button */}
                             <button
@@ -353,14 +398,14 @@ export function GallerySection() {
                                 e.stopPropagation()
                                 handleLike(item.id)
                               }}
-                              className={`px-3 py-1 rounded-full text-xs font-display font-bold transition-all active:scale-90 flex items-center gap-1.5 ${
+                              className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-display font-bold transition-all active:scale-90 flex items-center gap-1 ${
                                 likedPhotoIds.has(item.id)
                                   ? 'bg-red-50 text-crimson border border-red-200 shadow-xs'
                                   : 'text-[#7a4a4a] hover:text-crimson hover:bg-gold/15'
                               }`}
                               title="Love this photo"
                             >
-                              <span className="text-sm">{likedPhotoIds.has(item.id) ? '❤️' : '🤍'}</span>
+                              <span className="text-xs sm:text-sm">{likedPhotoIds.has(item.id) ? '❤️' : '🤍'}</span>
                               <span>{item.likes || 1}</span>
                             </button>
 
@@ -370,7 +415,7 @@ export function GallerySection() {
                                 e.stopPropagation()
                                 setSelectedPhotoForComments(item)
                               }}
-                              className="px-3 py-1 rounded-full text-xs font-display font-bold text-[#5c0a0a] hover:text-crimson hover:bg-gold/15 border border-gold/20 flex items-center gap-1.5 transition-colors"
+                              className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-display font-bold text-[#5c0a0a] hover:text-crimson hover:bg-gold/15 border border-gold/20 flex items-center gap-1 transition-colors"
                               title="View and post comments"
                             >
                               <span>💬</span>
@@ -426,14 +471,20 @@ export function GallerySection() {
                     <h3 className="font-display font-bold text-crimson text-base">No moments found</h3>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 py-2">
+                  <div
+                    className={`grid ${
+                      mobileGridCols === 2 ? 'grid-cols-2 gap-2.5 sm:gap-6' : 'grid-cols-1 gap-5 sm:gap-6'
+                    } sm:grid-cols-2 lg:grid-cols-3 py-2`}
+                  >
                     {allDisplayPhotos.map((item, index) => (
                       <div
                         key={item.id || index}
                         className="group relative transition-all duration-300 hover:-translate-y-1.5 flex flex-col h-full"
                       >
                         <div
-                          className="relative bg-white rounded-2xl p-2.5 sm:p-3 border-[5px] sm:border-[6px] border-[#4a0808] transition-all duration-300 group-hover:border-[#380505] flex flex-col justify-between h-full"
+                          className={`relative bg-white rounded-2xl ${
+                            mobileGridCols === 2 ? 'p-2 sm:p-3 border-[3px] sm:border-[6px]' : 'p-2.5 sm:p-3 border-[5px] sm:border-[6px]'
+                          } border-[#4a0808] transition-all duration-300 group-hover:border-[#380505] flex flex-col justify-between h-full`}
                           style={{
                             boxShadow:
                               '0 10px 24px rgba(61, 8, 8, 0.16), 0 3px 8px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255, 215, 0, 0.7)',
