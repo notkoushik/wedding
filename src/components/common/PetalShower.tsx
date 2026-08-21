@@ -188,16 +188,16 @@ export function PetalShower() {
   return (
     <>
       {/* 🌸 Floating Interactive Shower Action Button (Fixed Bottom-Right) */}
-      <div className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40">
+      <div className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-40">
         <button
           onClick={triggerShower}
-          className="group relative px-4 py-2.5 rounded-full font-display text-xs font-bold text-[#3a0505] bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] shadow-xl border border-white/60 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center gap-2 hover:shadow-2xl hover:shadow-gold/40"
+          className="group relative px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full font-display text-[11px] sm:text-xs font-bold text-[#3a0505] bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] shadow-xl border border-white/60 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-1.5 sm:gap-2 hover:shadow-2xl hover:shadow-gold/40 backdrop-blur-md"
           title="Shower Sacred Akshintalu & Rose Petals on the Couple"
         >
-          <span className="text-base animate-bounce">🌸</span>
+          <span className="text-sm sm:text-base animate-bounce">🌸</span>
           <span className="tracking-wide">Shower Blessings</span>
           <span className="hidden sm:inline text-[10px] text-crimson font-telugu font-semibold">
-            (అక్షతలు వేయండి)
+            (అక్షతలు)
           </span>
 
           {/* Golden Pulse Ring */}

@@ -48,8 +48,16 @@ export function GallerySection() {
 
   useEffect(() => {
     loadGuestPhotos()
+    const handleOpenPhotoBooth = () => {
+      setActiveTab('guests')
+      setIsUploadModalOpen(true)
+    }
+    window.addEventListener('open_photo_booth_modal', handleOpenPhotoBooth)
     window.addEventListener('wedding_photos_updated', loadGuestPhotos)
-    return () => window.removeEventListener('wedding_photos_updated', loadGuestPhotos)
+    return () => {
+      window.removeEventListener('open_photo_booth_modal', handleOpenPhotoBooth)
+      window.removeEventListener('wedding_photos_updated', loadGuestPhotos)
+    }
   }, [])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,11 +122,11 @@ export function GallerySection() {
             visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
-          <SectionLabel title="Captured Moments & Guest Snaps" sub="Memories In The Making" />
+          <SectionLabel title="Wedding Photo Booth & Guest Snaps" sub="ఫోటో బూత్ · Snap & Cherish Live Moments" />
 
           {/* Subtitle description */}
           <p className="text-center font-display italic text-xs sm:text-sm text-[#7a4a4a] max-w-xl mx-auto mb-8 -mt-6">
-            "Browse official moments or snap and share your own live photos from the wedding celebration to cherish forever."
+            "Snap a live selfie at the wedding hall, share your moments with Mohan &amp; Leepika, and become part of our universal wedding album!"
           </p>
 
           {/* Gallery Header Controls: Tabs & 1-Tap Camera Upload Button */}
@@ -126,8 +134,8 @@ export function GallerySection() {
             <div className="flex items-center gap-2">
               {[
                 { id: 'all' as const, label: `All Moments (${gallery.length + guestPhotos.length})` },
-                { id: 'official' as const, label: `Official (${gallery.length})` },
-                { id: 'guests' as const, label: `📸 Guest Snaps (${guestPhotos.length})` },
+                { id: 'official' as const, label: `Official Portraits (${gallery.length})` },
+                { id: 'guests' as const, label: `📸 Photo Booth Snaps (${guestPhotos.length})` },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -149,7 +157,7 @@ export function GallerySection() {
               className="px-5 py-2 rounded-full font-display text-xs uppercase tracking-wider font-bold text-[#3a0505] bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] hover:brightness-110 shadow-md shadow-gold/25 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2"
             >
               <span className="text-sm">📸</span>
-              <span>Upload / Snap a Photo</span>
+              <span>Open Photo Booth (Snap / Upload)</span>
             </button>
           </div>
 

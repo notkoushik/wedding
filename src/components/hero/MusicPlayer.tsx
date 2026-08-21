@@ -120,29 +120,32 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
 
   return (
     <>
-      {/* ── 1. Floating Trigger Pill (Bottom Right / Center) ── */}
-      <div className="fixed bottom-20 md:bottom-6 right-4 md:right-8 z-40 flex items-center gap-2">
+      {/* ── 1. Floating Trigger Pill (Bottom Left on Mobile & Desktop) ── */}
+      <div className="fixed bottom-20 md:bottom-6 left-3 md:left-6 z-40 flex items-center gap-2">
         <button
           onClick={() => setIsOpen(true)}
-          className="group relative inline-flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-full text-gold-light bg-gradient-to-r from-[#4a0606] via-[#2e0404] to-[#4a0606] border border-gold/60 shadow-2xl hover:border-gold hover:scale-105 active:scale-95 transition-all duration-300 backdrop-blur-md"
+          className="group relative inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-gold-light bg-gradient-to-r from-[#4a0606] via-[#2e0404] to-[#4a0606] border border-gold/60 shadow-xl hover:border-gold hover:scale-105 active:scale-95 transition-all duration-300 backdrop-blur-md"
           style={{
-            boxShadow: '0 0 20px rgba(255, 215, 0, 0.35), 0 8px 25px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 0 16px rgba(255, 215, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.6)',
           }}
+          title="Open Royal Telugu Music Player"
         >
           {/* Animated Gold Aura Glow */}
           <div className="absolute inset-0 rounded-full animate-pulse opacity-25 bg-gradient-to-r from-gold-bright via-white to-gold-bright pointer-events-none" />
 
-          {/* Left Lotus Icon */}
-          <span className="text-xs text-gold">🌸</span>
-
-          {/* Icon & Label */}
+          {/* Icon & Animated Soundwaves */}
           <span className="text-sm">{isPlaying ? '🔊' : '🎵'}</span>
-          <span className="font-display font-bold text-xs uppercase tracking-widest text-gold-light group-hover:text-white">
-            {isPlaying ? 'Playing Shehnai' : 'Play Shehnai'}
+          <span className="font-display font-bold text-[11px] sm:text-xs uppercase tracking-wider text-gold-light group-hover:text-white">
+            {isPlaying ? 'Music Playing' : 'Play Shehnai'}
           </span>
 
-          {/* Right Lotus Icon */}
-          <span className="text-xs text-gold">🌸</span>
+          {isPlaying && (
+            <span className="flex items-center gap-0.5 ml-0.5">
+              <span className="w-0.5 h-2.5 bg-gold-light rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-0.5 h-3.5 bg-gold-light rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-0.5 h-2 bg-gold-light rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            </span>
+          )}
         </button>
       </div>
 
