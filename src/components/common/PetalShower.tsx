@@ -5,7 +5,16 @@ interface BotanicalPetal {
   y: number
   z: number // Depth for 3D scale
   size: number
-  variety: 'velvet-rose' | 'pink-rose' | 'marigold-saffron' | 'jasmine-mogra' | 'lotus-petal' | 'sacred-akshintalu' | 'gold-stardust'
+  variety:
+    | 'full-blooming-rose'
+    | 'pink-blooming-rose'
+    | 'velvet-rose'
+    | 'pink-rose'
+    | 'marigold-saffron'
+    | 'jasmine-mogra'
+    | 'lotus-petal'
+    | 'sacred-akshintalu'
+    | 'gold-stardust'
   speedX: number
   speedY: number
   speedZ: number
@@ -67,12 +76,15 @@ export function PetalShower() {
     setIsActive(true)
     playAuspiciousChime()
 
-    // Spawn rich array of botanical petals
-    const count = window.innerWidth < 640 ? 65 : 110
+    // Spawn rich array of botanical petals AND full blooming roses
+    const count = window.innerWidth < 640 ? 70 : 120
     const newPetals: BotanicalPetal[] = []
 
     for (let i = 0; i < count; i++) {
       const varieties: BotanicalPetal['variety'][] = [
+        'full-blooming-rose', // 🌹 Full Red Blooming Rose
+        'full-blooming-rose',
+        'pink-blooming-rose', // 🌸 Full Pink Blooming Rose
         'velvet-rose',
         'velvet-rose',
         'pink-rose',
@@ -87,24 +99,29 @@ export function PetalShower() {
 
       newPetals.push({
         x: Math.random() * window.innerWidth,
-        y: -40 - Math.random() * (window.innerHeight * 0.8),
-        z: 0.7 + Math.random() * 0.6,
+        y: -50 - Math.random() * (window.innerHeight * 0.8),
+        z: 0.75 + Math.random() * 0.5,
         size:
-          variety === 'sacred-akshintalu'
+          variety === 'full-blooming-rose' || variety === 'pink-blooming-rose'
+            ? 22 + Math.random() * 18 // Prominent full rose size
+            : variety === 'sacred-akshintalu'
             ? 3.5 + Math.random() * 2
             : variety === 'jasmine-mogra'
             ? 9 + Math.random() * 4
             : 14 + Math.random() * 16,
         variety,
         speedX: (Math.random() - 0.5) * 2.2,
-        speedY: 2.0 + Math.random() * 3.2,
+        speedY:
+          variety === 'full-blooming-rose' || variety === 'pink-blooming-rose'
+            ? 1.8 + Math.random() * 2.2 // Gentle heavier drift for full roses
+            : 2.2 + Math.random() * 3.2,
         speedZ: 0,
         angle: Math.random() * Math.PI * 2,
-        angleSpeed: (Math.random() - 0.5) * 0.04,
+        angleSpeed: (Math.random() - 0.5) * 0.03,
         tilt: Math.random() * Math.PI,
-        tiltSpeed: 0.02 + Math.random() * 0.04,
+        tiltSpeed: 0.02 + Math.random() * 0.035,
         flip: Math.random() * Math.PI,
-        flipSpeed: 0.03 + Math.random() * 0.05,
+        flipSpeed: 0.025 + Math.random() * 0.04,
         opacity: 1,
         swaySpeed: 0.025 + Math.random() * 0.035,
         swayRadius: 25 + Math.random() * 35,
@@ -134,7 +151,7 @@ export function PetalShower() {
     canvas.height = window.innerHeight
 
     let startTime = Date.now()
-    const duration = 4600 // 4.6 seconds graceful fall
+    const duration = 4800 // 4.8 seconds graceful fall
 
     const render = () => {
       const elapsed = Date.now() - startTime
@@ -164,14 +181,14 @@ export function PetalShower() {
         ctx.scale(scaleX, scaleY)
         ctx.globalAlpha = Math.max(0.05, p.opacity)
 
-        // ── 🎨 Render Master Botanical Flower & Petal Shapes ──
+        // ── 🎨 Render Master Botanical Flowers & Petals ──
         drawBotanicalElement(ctx, p)
 
         ctx.restore()
       })
 
       // Remove fallen petals
-      petalsRef.current = petalsRef.current.filter((p) => p.y < canvas.height + 60 && p.opacity > 0)
+      petalsRef.current = petalsRef.current.filter((p) => p.y < canvas.height + 70 && p.opacity > 0)
 
       if (elapsed < duration || petalsRef.current.length > 0) {
         animationFrameRef.current = requestAnimationFrame(render)
@@ -192,7 +209,10 @@ export function PetalShower() {
   const drawBotanicalElement = (ctx: CanvasRenderingContext2D, p: BotanicalPetal) => {
     const s = p.size
 
-    if (p.variety === 'velvet-rose') {
+    if (p.variety === 'full-blooming-rose' || p.variety === 'pink-blooming-rose') {
+      // 🌹 Full 3D Blooming Royal Rose (పూర్తి గులాబీ పువ్వు)
+      drawFullBloomingRose(ctx, s, p.variety === 'pink-blooming-rose')
+    } else if (p.variety === 'velvet-rose') {
       // 🌹 Velvet Crimson Rose Petal (Organic curved heart shape with velvet ombre)
       const grad = ctx.createRadialGradient(-s * 0.2, -s * 0.3, s * 0.1, 0, 0, s * 1.2)
       grad.addColorStop(0, '#e53935') // Soft bright crimson highlight
@@ -209,7 +229,7 @@ export function PetalShower() {
       ctx.closePath()
       ctx.fill()
 
-      // Subtle delicate center vein
+      // Delicate center vein
       ctx.strokeStyle = 'rgba(255, 180, 180, 0.25)'
       ctx.lineWidth = 0.8
       ctx.beginPath()
@@ -291,7 +311,7 @@ export function PetalShower() {
       ctx.ellipse(0, 0, s * 0.5, s * 1.5, Math.PI / 4, 0, 2 * Math.PI)
       ctx.fill()
 
-      // Delicate natural rice grain crease
+      // Natural rice grain crease
       ctx.strokeStyle = 'rgba(180, 110, 0, 0.4)'
       ctx.lineWidth = 0.5
       ctx.beginPath()
@@ -307,6 +327,86 @@ export function PetalShower() {
     }
   }
 
+  // 🌹 Procedural Master Full Blooming Rose Drawing Algorithm
+  const drawFullBloomingRose = (ctx: CanvasRenderingContext2D, size: number, isPink = false) => {
+    const s = size * 1.25
+
+    // 1. Green Sepals (Behind petals)
+    ctx.fillStyle = '#2e7d32'
+    for (let k = 0; k < 5; k++) {
+      ctx.save()
+      ctx.rotate((k * Math.PI * 2) / 5 + Math.PI / 10)
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.quadraticCurveTo(-s * 0.15, s * 0.6, 0, s * 0.9)
+      ctx.quadraticCurveTo(s * 0.15, s * 0.6, 0, 0)
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // 2. Layer 1: Outer 5 Wide Guard Petals
+    const cOuter1 = isPink ? '#f48fb1' : '#b71c1c'
+    const cOuter2 = isPink ? '#ad1457' : '#5c0505'
+    for (let i = 0; i < 5; i++) {
+      ctx.save()
+      ctx.rotate((i * Math.PI * 2) / 5)
+      const g = ctx.createRadialGradient(0, s * 0.3, s * 0.1, 0, s * 0.45, s * 0.75)
+      g.addColorStop(0, cOuter1)
+      g.addColorStop(1, cOuter2)
+      ctx.fillStyle = g
+      ctx.beginPath()
+      ctx.ellipse(0, s * 0.42, s * 0.45, s * 0.38, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // 3. Layer 2: Intermediate Spiraled Cupped Petals (6 petals)
+    const cMid1 = isPink ? '#ff80ab' : '#d32f2f'
+    const cMid2 = isPink ? '#880e4f' : '#7f0000'
+    for (let j = 0; j < 6; j++) {
+      ctx.save()
+      ctx.rotate((j * Math.PI * 2) / 6 + Math.PI / 6)
+      const g = ctx.createRadialGradient(0, s * 0.2, s * 0.05, 0, s * 0.25, s * 0.5)
+      g.addColorStop(0, cMid1)
+      g.addColorStop(1, cMid2)
+      ctx.fillStyle = g
+      ctx.beginPath()
+      ctx.ellipse(0, s * 0.26, s * 0.34, s * 0.28, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // 4. Layer 3: Inner Tight Spiral Petals
+    const cCore1 = isPink ? '#ff4081' : '#e53935'
+    const cCore2 = isPink ? '#4a148c' : '#4a0000'
+    for (let m = 0; m < 5; m++) {
+      ctx.save()
+      ctx.rotate((m * Math.PI * 2) / 5 + Math.PI / 4)
+      ctx.fillStyle = cCore1
+      ctx.beginPath()
+      ctx.ellipse(0, s * 0.14, s * 0.22, s * 0.16, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // 5. Central Rosebud Swirl Core
+    const coreGrad = ctx.createRadialGradient(-s * 0.05, -s * 0.05, s * 0.02, 0, 0, s * 0.18)
+    coreGrad.addColorStop(0, isPink ? '#ffffff' : '#ffcdd2')
+    coreGrad.addColorStop(0.5, cCore1)
+    coreGrad.addColorStop(1, cCore2)
+    ctx.fillStyle = coreGrad
+    ctx.beginPath()
+    ctx.arc(0, 0, s * 0.15, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Delicate Spiral Swirl Line
+    ctx.strokeStyle = isPink ? 'rgba(255,255,255,0.8)' : 'rgba(255, 180, 180, 0.8)'
+    ctx.lineWidth = 1.2
+    ctx.beginPath()
+    ctx.arc(0, 0, s * 0.08, 0, Math.PI * 1.5)
+    ctx.stroke()
+  }
+
   return (
     <>
       {/* 🌸 Floating Interactive Shower Action Button (Fixed Bottom-Right) */}
@@ -314,12 +414,12 @@ export function PetalShower() {
         <button
           onClick={triggerShower}
           className="group relative px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full font-display text-[11px] sm:text-xs font-bold text-[#3a0505] bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] shadow-xl border border-white/60 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-1.5 sm:gap-2 hover:shadow-2xl hover:shadow-gold/40 backdrop-blur-md"
-          title="Shower Sacred Akshintalu & Rose Petals on the Couple"
+          title="Shower Sacred Akshintalu, Blooming Roses & Petals on the Couple"
         >
           <span className="text-sm sm:text-base animate-bounce">🌸</span>
           <span className="tracking-wide">Shower Blessings</span>
           <span className="hidden sm:inline text-[10px] text-crimson font-telugu font-semibold">
-            (అక్షతలు)
+            (పుష్పవృష్టి &amp; అక్షతలు)
           </span>
 
           {/* Golden Pulse Ring */}
