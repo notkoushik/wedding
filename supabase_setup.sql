@@ -101,3 +101,23 @@ DROP POLICY IF EXISTS "Allow public delete wedding-media" ON storage.objects;
 CREATE POLICY "Allow public read wedding-media" ON storage.objects FOR SELECT USING (bucket_id = 'wedding-media');
 CREATE POLICY "Allow public upload wedding-media" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'wedding-media');
 CREATE POLICY "Allow public delete wedding-media" ON storage.objects FOR DELETE USING (bucket_id = 'wedding-media');
+
+-- 10. Create Dynamic Photo Comments Table
+CREATE TABLE IF NOT EXISTS public.photo_comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT now(),
+    photo_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    comment TEXT NOT NULL
+);
+
+ALTER TABLE public.photo_comments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read photo_comments" ON public.photo_comments;
+DROP POLICY IF EXISTS "Allow public insert photo_comments" ON public.photo_comments;
+DROP POLICY IF EXISTS "Allow public delete photo_comments" ON public.photo_comments;
+
+CREATE POLICY "Allow public read photo_comments" ON public.photo_comments FOR SELECT USING (true);
+CREATE POLICY "Allow public insert photo_comments" ON public.photo_comments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public delete photo_comments" ON public.photo_comments FOR DELETE USING (true);
+

@@ -372,8 +372,92 @@ export async function deleteGuestPhoto(photoId: string): Promise<boolean> {
   }
 }
 
+// ── 5. Photo Comments System ──
+export interface PhotoComment {
+  id: string
+  photo_id: string
+  name: string
+  comment: string
+  created_at: string
+}
+
+export async function fetchPhotoComments(photoId: string): Promise<PhotoComment[]> {
+  const allComments: Record<string, PhotoComment[]> = JSON.parse(
+    localStorage.getItem('wedding_photo_comments') || '{}'
+  )
+  const localComments = allComments[photoId] || []
+
+  if (!supabase) return localComments
+
+  try {
+    const { data, error } = await supabase
+      .from('photo_comments')
+      .select('*')
+      .eq('photo_id', photoId)
+      .order('created_at', { ascending: true })
+
+    if (error || !data) return localComments
+
+    const liveIds = new Set(data.map((c: any) => c.id))
+    const merged = [...data, ...localComments.filter((c) => !liveIds.has(c.id))]
+    return merged
+  } catch {
+    return localComments
+  }
+}
+
+export async function addPhotoComment(
+  photoId: string,
+  name: string,
+  comment: string
+): Promise<PhotoComment> {
+  const newComment: PhotoComment = {
+    id: 'comm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    photo_id: photoId,
+    name: name.trim() || 'Well Wisher',
+    comment: comment.trim(),
+    created_at: new Date().toISOString(),
+  }
+
+  // Save to LocalStorage
+  const allComments: Record<string, PhotoComment[]> = JSON.parse(
+    localStorage.getItem('wedding_photo_comments') || '{}'
+  )
+  if (!allComments[photoId]) allComments[photoId] = []
+  allComments[photoId].push(newComment)
+  localStorage.setItem('wedding_photo_comments', JSON.stringify(allComments))
+
+  // Dispatch sync event
+  window.dispatchEvent(new CustomEvent('photo_comment_added', { detail: { photoId } }))
+
+  if (supabase) {
+    try {
+      await supabase.from('photo_comments').insert([
+        {
+          photo_id: photoId,
+          name: newComment.name,
+          comment: newComment.comment,
+        },
+      ])
+    } catch {}
+  }
+
+  return newComment
+}
+
+export function getAllLocalCommentsCount(): Record<string, number> {
+  const allComments: Record<string, PhotoComment[]> = JSON.parse(
+    localStorage.getItem('wedding_photo_comments') || '{}'
+  )
+  const counts: Record<string, number> = {}
+  Object.keys(allComments).forEach((id) => {
+    counts[id] = allComments[id]?.length || 0
+  })
+  return counts
+}
+
 // Helper: Time ago formatter
-function formatTimeAgo(date: Date): string {
+export function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
   if (seconds < 60) return 'Just now'
   const minutes = Math.floor(seconds / 60)
@@ -383,3 +467,4 @@ function formatTimeAgo(date: Date): string {
   const days = Math.floor(hours / 24)
   return `${days}d ago`
 }
+
