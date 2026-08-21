@@ -3,17 +3,22 @@ import { useEffect, useRef, useState } from 'react'
 interface BotanicalPetal {
   x: number
   y: number
-  z: number // Depth for 3D scale
+  z: number // Depth for 3D perspective
   size: number
   variety:
     | 'full-blooming-rose'
     | 'pink-blooming-rose'
+    | 'full-marigold-flower'
+    | 'full-lotus-flower'
+    | 'sevanthi-chrysanthemum'
+    | 'jasmine-mogra'
     | 'velvet-rose'
     | 'pink-rose'
     | 'marigold-saffron'
-    | 'jasmine-mogra'
     | 'lotus-petal'
+    | 'auspicious-mango-leaf'
     | 'sacred-akshintalu'
+    | 'royal-pearl'
     | 'gold-stardust'
   speedX: number
   speedY: number
@@ -76,48 +81,60 @@ export function PetalShower() {
     setIsActive(true)
     playAuspiciousChime()
 
-    // Spawn rich array of botanical petals AND full blooming roses
-    const count = window.innerWidth < 640 ? 70 : 120
+    // Spawn diverse array of botanical flowers, petals, and sacred akshintalu
+    const count = window.innerWidth < 640 ? 75 : 130
     const newPetals: BotanicalPetal[] = []
 
     for (let i = 0; i < count; i++) {
       const varieties: BotanicalPetal['variety'][] = [
-        'full-blooming-rose', // 🌹 Full Red Blooming Rose
         'full-blooming-rose',
-        'pink-blooming-rose', // 🌸 Full Pink Blooming Rose
+        'pink-blooming-rose',
+        'full-marigold-flower',
+        'full-lotus-flower',
+        'sevanthi-chrysanthemum',
+        'jasmine-mogra',
+        'jasmine-mogra',
         'velvet-rose',
         'velvet-rose',
         'pink-rose',
         'marigold-saffron',
-        'jasmine-mogra',
         'lotus-petal',
+        'auspicious-mango-leaf',
         'sacred-akshintalu',
         'sacred-akshintalu',
+        'royal-pearl',
         'gold-stardust',
       ]
       const variety = varieties[Math.floor(Math.random() * varieties.length)]
+
+      const isWholeFlower =
+        variety === 'full-blooming-rose' ||
+        variety === 'pink-blooming-rose' ||
+        variety === 'full-marigold-flower' ||
+        variety === 'full-lotus-flower' ||
+        variety === 'sevanthi-chrysanthemum'
 
       newPetals.push({
         x: Math.random() * window.innerWidth,
         y: -50 - Math.random() * (window.innerHeight * 0.8),
         z: 0.75 + Math.random() * 0.5,
-        size:
-          variety === 'full-blooming-rose' || variety === 'pink-blooming-rose'
-            ? 22 + Math.random() * 18 // Prominent full rose size
-            : variety === 'sacred-akshintalu'
-            ? 3.5 + Math.random() * 2
-            : variety === 'jasmine-mogra'
-            ? 9 + Math.random() * 4
-            : 14 + Math.random() * 16,
+        size: isWholeFlower
+          ? 20 + Math.random() * 16 // Prominent whole flowers
+          : variety === 'sacred-akshintalu' || variety === 'royal-pearl'
+          ? 3.5 + Math.random() * 2
+          : variety === 'jasmine-mogra'
+          ? 9 + Math.random() * 4
+          : variety === 'auspicious-mango-leaf'
+          ? 18 + Math.random() * 10
+          : 13 + Math.random() * 15,
         variety,
         speedX: (Math.random() - 0.5) * 2.2,
-        speedY:
-          variety === 'full-blooming-rose' || variety === 'pink-blooming-rose'
-            ? 1.8 + Math.random() * 2.2 // Gentle heavier drift for full roses
-            : 2.2 + Math.random() * 3.2,
+        speedY: isWholeFlower
+          ? 1.7 + Math.random() * 2.2 // Gentle heavier drift for whole flowers
+          : 2.2 + Math.random() * 3.2,
         speedZ: 0,
         angle: Math.random() * Math.PI * 2,
-        angleSpeed: (Math.random() - 0.5) * 0.03,
+        angleSpeed: (Math.random() - 0.5) * 0.035,
         tilt: Math.random() * Math.PI,
         tiltSpeed: 0.02 + Math.random() * 0.035,
         flip: Math.random() * Math.PI,
@@ -151,7 +168,7 @@ export function PetalShower() {
     canvas.height = window.innerHeight
 
     let startTime = Date.now()
-    const duration = 4800 // 4.8 seconds graceful fall
+    const duration = 5000 // 5.0 seconds graceful fall
 
     const render = () => {
       const elapsed = Date.now() - startTime
@@ -205,31 +222,45 @@ export function PetalShower() {
     }
   }, [isActive])
 
-  // ── Botanical Drawing Procedures ──
+  // ── Master Botanical Drawing Engine ──
   const drawBotanicalElement = (ctx: CanvasRenderingContext2D, p: BotanicalPetal) => {
     const s = p.size
 
     if (p.variety === 'full-blooming-rose' || p.variety === 'pink-blooming-rose') {
       // 🌹 Full 3D Blooming Royal Rose (పూర్తి గులాబీ పువ్వు)
       drawFullBloomingRose(ctx, s, p.variety === 'pink-blooming-rose')
+    } else if (p.variety === 'full-marigold-flower') {
+      // 🌼 Whole Golden Marigold Blossom (పూర్తి బంతిపువ్వు)
+      drawFullMarigold(ctx, s)
+    } else if (p.variety === 'full-lotus-flower') {
+      // 🪷 Whole Sacred Lotus Blossom (పూర్తి కమలం)
+      drawFullLotus(ctx, s)
+    } else if (p.variety === 'sevanthi-chrysanthemum') {
+      // 🌼 Sevanthi Chrysanthemum Blossom (సేవంతి పువ్వు)
+      drawFullSevanthi(ctx, s)
+    } else if (p.variety === 'auspicious-mango-leaf') {
+      // 🍃 Sacred Mango Leaf (మామిడి ఆకు)
+      drawMangoLeaf(ctx, s)
+    } else if (p.variety === 'royal-pearl') {
+      // 🦪 Sacred Wedding Pearl (ముత్యం)
+      drawPearl(ctx, s)
     } else if (p.variety === 'velvet-rose') {
-      // 🌹 Velvet Crimson Rose Petal (Organic curved heart shape with velvet ombre)
+      // 🌹 Velvet Crimson Rose Petal
       const grad = ctx.createRadialGradient(-s * 0.2, -s * 0.3, s * 0.1, 0, 0, s * 1.2)
-      grad.addColorStop(0, '#e53935') // Soft bright crimson highlight
-      grad.addColorStop(0.4, '#b71c1c') // Rich red velvet
-      grad.addColorStop(0.85, '#680808') // Deep royal shadow
+      grad.addColorStop(0, '#e53935')
+      grad.addColorStop(0.4, '#b71c1c')
+      grad.addColorStop(0.85, '#680808')
       grad.addColorStop(1, '#3d0303')
 
       ctx.fillStyle = grad
       ctx.beginPath()
-      ctx.moveTo(0, s * 0.9) // Base calyx
+      ctx.moveTo(0, s * 0.9)
       ctx.bezierCurveTo(-s * 0.7, s * 0.5, -s * 0.95, -s * 0.4, -s * 0.4, -s * 0.9)
       ctx.bezierCurveTo(-s * 0.1, -s * 1.05, s * 0.1, -s * 1.05, s * 0.4, -s * 0.9)
       ctx.bezierCurveTo(s * 0.95, -s * 0.4, s * 0.7, s * 0.5, 0, s * 0.9)
       ctx.closePath()
       ctx.fill()
 
-      // Delicate center vein
       ctx.strokeStyle = 'rgba(255, 180, 180, 0.25)'
       ctx.lineWidth = 0.8
       ctx.beginPath()
@@ -253,24 +284,23 @@ export function PetalShower() {
       ctx.closePath()
       ctx.fill()
     } else if (p.variety === 'marigold-saffron') {
-      // 🏵️ Saffron Marigold Petal (Fluted ruffly wedding marigold)
+      // 🏵️ Saffron Marigold Petal
       const grad = ctx.createLinearGradient(0, s, 0, -s)
-      grad.addColorStop(0, '#e65100') // Deep orange base
-      grad.addColorStop(0.5, '#ff9800') // Vibrant marigold
-      grad.addColorStop(0.95, '#ffd54f') // Saffron gold ruffled tip
+      grad.addColorStop(0, '#e65100')
+      grad.addColorStop(0.5, '#ff9800')
+      grad.addColorStop(0.95, '#ffd54f')
 
       ctx.fillStyle = grad
       ctx.beginPath()
       ctx.moveTo(0, s * 0.8)
       ctx.bezierCurveTo(-s * 0.4, s * 0.3, -s * 0.55, -s * 0.4, -s * 0.2, -s * 0.8)
-      // Ruffled scalloped tip
       ctx.lineTo(0, -s * 0.95)
       ctx.lineTo(s * 0.2, -s * 0.8)
       ctx.bezierCurveTo(s * 0.55, -s * 0.4, s * 0.4, s * 0.3, 0, s * 0.8)
       ctx.closePath()
       ctx.fill()
     } else if (p.variety === 'jasmine-mogra') {
-      // 🌼 Scented Jasmine Floret (మల్లెపూవు - 5 Petal Star with golden pistil)
+      // 🌼 Scented Jasmine Floret (మల్లెపూవు)
       ctx.fillStyle = '#fffdf7'
       for (let j = 0; j < 5; j++) {
         ctx.save()
@@ -280,13 +310,12 @@ export function PetalShower() {
         ctx.fill()
         ctx.restore()
       }
-      // Golden center core
       ctx.fillStyle = '#fbc02d'
       ctx.beginPath()
       ctx.arc(0, 0, s * 0.18, 0, Math.PI * 2)
       ctx.fill()
     } else if (p.variety === 'lotus-petal') {
-      // 🪷 Sacred Lotus Petal (కమల రేకు)
+      // 🪷 Sacred Lotus Petal
       const grad = ctx.createLinearGradient(0, s, 0, -s)
       grad.addColorStop(0, '#ffffff')
       grad.addColorStop(0.5, '#f8bbd0')
@@ -302,16 +331,15 @@ export function PetalShower() {
     } else if (p.variety === 'sacred-akshintalu') {
       // 🌾 Sacred Turmeric-Dipped Rice Grain (అక్షతలు)
       const grad = ctx.createLinearGradient(-s, -s, s, s)
-      grad.addColorStop(0, '#fff59d') // Highlight
-      grad.addColorStop(0.4, '#ffd700') // Turmeric Gold
-      grad.addColorStop(1, '#c98a00') // Warm Saffron shade
+      grad.addColorStop(0, '#fff59d')
+      grad.addColorStop(0.4, '#ffd700')
+      grad.addColorStop(1, '#c98a00')
 
       ctx.fillStyle = grad
       ctx.beginPath()
       ctx.ellipse(0, 0, s * 0.5, s * 1.5, Math.PI / 4, 0, 2 * Math.PI)
       ctx.fill()
 
-      // Natural rice grain crease
       ctx.strokeStyle = 'rgba(180, 110, 0, 0.4)'
       ctx.lineWidth = 0.5
       ctx.beginPath()
@@ -327,11 +355,11 @@ export function PetalShower() {
     }
   }
 
-  // 🌹 Procedural Master Full Blooming Rose Drawing Algorithm
+  // 🌹 1. Full Blooming Rose Flower
   const drawFullBloomingRose = (ctx: CanvasRenderingContext2D, size: number, isPink = false) => {
     const s = size * 1.25
 
-    // 1. Green Sepals (Behind petals)
+    // Green Sepals
     ctx.fillStyle = '#2e7d32'
     for (let k = 0; k < 5; k++) {
       ctx.save()
@@ -344,7 +372,7 @@ export function PetalShower() {
       ctx.restore()
     }
 
-    // 2. Layer 1: Outer 5 Wide Guard Petals
+    // Layer 1: Outer Guard Petals
     const cOuter1 = isPink ? '#f48fb1' : '#b71c1c'
     const cOuter2 = isPink ? '#ad1457' : '#5c0505'
     for (let i = 0; i < 5; i++) {
@@ -360,7 +388,7 @@ export function PetalShower() {
       ctx.restore()
     }
 
-    // 3. Layer 2: Intermediate Spiraled Cupped Petals (6 petals)
+    // Layer 2: Intermediate Petals
     const cMid1 = isPink ? '#ff80ab' : '#d32f2f'
     const cMid2 = isPink ? '#880e4f' : '#7f0000'
     for (let j = 0; j < 6; j++) {
@@ -376,7 +404,7 @@ export function PetalShower() {
       ctx.restore()
     }
 
-    // 4. Layer 3: Inner Tight Spiral Petals
+    // Layer 3: Inner Petals & Core
     const cCore1 = isPink ? '#ff4081' : '#e53935'
     const cCore2 = isPink ? '#4a148c' : '#4a0000'
     for (let m = 0; m < 5; m++) {
@@ -389,7 +417,6 @@ export function PetalShower() {
       ctx.restore()
     }
 
-    // 5. Central Rosebud Swirl Core
     const coreGrad = ctx.createRadialGradient(-s * 0.05, -s * 0.05, s * 0.02, 0, 0, s * 0.18)
     coreGrad.addColorStop(0, isPink ? '#ffffff' : '#ffcdd2')
     coreGrad.addColorStop(0.5, cCore1)
@@ -399,12 +426,119 @@ export function PetalShower() {
     ctx.arc(0, 0, s * 0.15, 0, Math.PI * 2)
     ctx.fill()
 
-    // Delicate Spiral Swirl Line
     ctx.strokeStyle = isPink ? 'rgba(255,255,255,0.8)' : 'rgba(255, 180, 180, 0.8)'
     ctx.lineWidth = 1.2
     ctx.beginPath()
     ctx.arc(0, 0, s * 0.08, 0, Math.PI * 1.5)
     ctx.stroke()
+  }
+
+  // 🌼 2. Whole Golden Marigold Blossom
+  const drawFullMarigold = (ctx: CanvasRenderingContext2D, size: number) => {
+    const s = size * 1.1
+    const colors = ['#e65100', '#f57c00', '#ffa000', '#ffd54f']
+    for (let layer = 0; layer < 4; layer++) {
+      const petalCount = 8 + layer * 4
+      const radius = s * (0.8 - layer * 0.18)
+      ctx.fillStyle = colors[layer]
+      for (let i = 0; i < petalCount; i++) {
+        ctx.save()
+        ctx.rotate((i * Math.PI * 2) / petalCount + (layer * Math.PI) / 8)
+        ctx.beginPath()
+        ctx.ellipse(0, radius * 0.6, radius * 0.28, radius * 0.45, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
+      }
+    }
+    // Orange central floret core
+    ctx.fillStyle = '#ff6f00'
+    ctx.beginPath()
+    ctx.arc(0, 0, s * 0.18, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  // 🪷 3. Whole Sacred Lotus Blossom
+  const drawFullLotus = (ctx: CanvasRenderingContext2D, size: number) => {
+    const s = size * 1.15
+    // Outer 8 petals
+    for (let i = 0; i < 8; i++) {
+      ctx.save()
+      ctx.rotate((i * Math.PI * 2) / 8)
+      const grad = ctx.createLinearGradient(0, s * 0.8, 0, 0)
+      grad.addColorStop(0, '#ad1457')
+      grad.addColorStop(0.5, '#f48fb1')
+      grad.addColorStop(1, '#ffffff')
+      ctx.fillStyle = grad
+      ctx.beginPath()
+      ctx.moveTo(0, s * 0.8)
+      ctx.quadraticCurveTo(-s * 0.25, s * 0.35, 0, 0)
+      ctx.quadraticCurveTo(s * 0.25, s * 0.35, 0, s * 0.8)
+      ctx.fill()
+      ctx.restore()
+    }
+    // Golden center pod
+    ctx.fillStyle = '#ffd700'
+    ctx.beginPath()
+    ctx.arc(0, 0, s * 0.22, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  // 🌼 4. Sevanthi Chrysanthemum Blossom
+  const drawFullSevanthi = (ctx: CanvasRenderingContext2D, size: number) => {
+    const s = size
+    ctx.fillStyle = '#ffeb3b'
+    for (let i = 0; i < 14; i++) {
+      ctx.save()
+      ctx.rotate((i * Math.PI * 2) / 14)
+      ctx.beginPath()
+      ctx.ellipse(0, s * 0.45, s * 0.1, s * 0.45, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
+    ctx.fillStyle = '#f57f17'
+    ctx.beginPath()
+    ctx.arc(0, 0, s * 0.2, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  // 🍃 5. Sacred Emerald Mango Leaf
+  const drawMangoLeaf = (ctx: CanvasRenderingContext2D, size: number) => {
+    const s = size * 1.2
+    const g = ctx.createLinearGradient(-s * 0.3, 0, s * 0.3, 0)
+    g.addColorStop(0, '#1b5e20')
+    g.addColorStop(0.5, '#2e7d32')
+    g.addColorStop(1, '#4caf50')
+
+    ctx.fillStyle = g
+    ctx.beginPath()
+    ctx.moveTo(0, s * 0.85) // Stem
+    ctx.bezierCurveTo(-s * 0.35, s * 0.3, -s * 0.3, -s * 0.4, 0, -s * 0.85) // Tip
+    ctx.bezierCurveTo(s * 0.3, -s * 0.4, s * 0.35, s * 0.3, 0, s * 0.85)
+    ctx.closePath()
+    ctx.fill()
+
+    // Yellowish-green center vein
+    ctx.strokeStyle = '#a5d6a7'
+    ctx.lineWidth = 0.8
+    ctx.beginPath()
+    ctx.moveTo(0, s * 0.8)
+    ctx.lineTo(0, -s * 0.8)
+    ctx.stroke()
+  }
+
+  // 🦪 6. Sacred Iridescent Pearl
+  const drawPearl = (ctx: CanvasRenderingContext2D, size: number) => {
+    const s = size * 0.9
+    const g = ctx.createRadialGradient(-s * 0.3, -s * 0.3, s * 0.1, 0, 0, s)
+    g.addColorStop(0, '#ffffff')
+    g.addColorStop(0.5, '#f5f5f5')
+    g.addColorStop(0.8, '#e0e0e0')
+    g.addColorStop(1, '#bdbdbd')
+
+    ctx.fillStyle = g
+    ctx.beginPath()
+    ctx.arc(0, 0, s, 0, Math.PI * 2)
+    ctx.fill()
   }
 
   return (
