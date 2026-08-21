@@ -1,16 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 
-interface Petal {
+interface BotanicalPetal {
   x: number
   y: number
+  z: number // Depth for 3D scale
   size: number
-  type: 'rose-red' | 'rose-pink' | 'marigold' | 'akshinthalu' | 'gold-sparkle'
+  variety: 'velvet-rose' | 'pink-rose' | 'marigold-saffron' | 'jasmine-mogra' | 'lotus-petal' | 'sacred-akshintalu' | 'gold-stardust'
   speedX: number
   speedY: number
-  rotation: number
-  rotationSpeed: number
+  speedZ: number
+  angle: number
+  angleSpeed: number
+  tilt: number
+  tiltSpeed: number
+  flip: number
+  flipSpeed: number
   opacity: number
   swaySpeed: number
+  swayRadius: number
   swayOffset: number
 }
 
@@ -26,35 +33,33 @@ export function PetalShower() {
   const [isActive, setIsActive] = useState(false)
   const [blessingIndex, setBlessingIndex] = useState(0)
   const animationFrameRef = useRef<number | null>(null)
-  const petalsRef = useRef<Petal[]>([])
+  const petalsRef = useRef<BotanicalPetal[]>([])
 
-  // Auspicious synthesized temple bell chime via Web Audio API
+  // Web Audio Synthesizer for Authentic Vedic Temple Chimes
   const playAuspiciousChime = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-      if (!AudioContext) return
-      const ctx = new AudioContext()
-      const notes = [523.25, 659.25, 783.99, 1046.5] // C5, E5, G5, C6 (Swaras)
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+      if (!AudioCtx) return
+      const ctx = new AudioCtx()
+      const notes = [587.33, 739.99, 880, 1174.66] // D5, F#5, A5, D6 (Raga Kalyani Auspicious notes)
 
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12)
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1)
 
-        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12)
-        gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + i * 0.12 + 0.04)
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 1.2)
+        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.1)
+        gain.gain.linearRampToValueAtTime(0.16, ctx.currentTime + i * 0.1 + 0.03)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 1.4)
 
         osc.connect(gain)
         gain.connect(ctx.destination)
 
-        osc.start(ctx.currentTime + i * 0.12)
-        osc.stop(ctx.currentTime + i * 0.12 + 1.3)
+        osc.start(ctx.currentTime + i * 0.1)
+        osc.stop(ctx.currentTime + i * 0.1 + 1.5)
       })
-    } catch {
-      // Audio context might be restricted before user gesture
-    }
+    } catch {}
   }
 
   const triggerShower = () => {
@@ -62,25 +67,47 @@ export function PetalShower() {
     setIsActive(true)
     playAuspiciousChime()
 
-    // Spawn 120 vibrant petals and akshintalu
-    const count = window.innerWidth < 640 ? 70 : 120
-    const newPetals: Petal[] = []
+    // Spawn rich array of botanical petals
+    const count = window.innerWidth < 640 ? 65 : 110
+    const newPetals: BotanicalPetal[] = []
 
     for (let i = 0; i < count; i++) {
-      const types: Petal['type'][] = ['rose-red', 'rose-pink', 'marigold', 'akshinthalu', 'gold-sparkle']
-      const type = types[Math.floor(Math.random() * types.length)]
+      const varieties: BotanicalPetal['variety'][] = [
+        'velvet-rose',
+        'velvet-rose',
+        'pink-rose',
+        'marigold-saffron',
+        'jasmine-mogra',
+        'lotus-petal',
+        'sacred-akshintalu',
+        'sacred-akshintalu',
+        'gold-stardust',
+      ]
+      const variety = varieties[Math.floor(Math.random() * varieties.length)]
 
       newPetals.push({
         x: Math.random() * window.innerWidth,
-        y: -30 - Math.random() * (window.innerHeight * 0.6),
-        size: type === 'akshinthalu' ? 3 + Math.random() * 3 : 10 + Math.random() * 14,
-        type,
-        speedX: (Math.random() - 0.5) * 2.5,
-        speedY: 2.2 + Math.random() * 3.5,
-        rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 4,
+        y: -40 - Math.random() * (window.innerHeight * 0.8),
+        z: 0.7 + Math.random() * 0.6,
+        size:
+          variety === 'sacred-akshintalu'
+            ? 3.5 + Math.random() * 2
+            : variety === 'jasmine-mogra'
+            ? 9 + Math.random() * 4
+            : 14 + Math.random() * 16,
+        variety,
+        speedX: (Math.random() - 0.5) * 2.2,
+        speedY: 2.0 + Math.random() * 3.2,
+        speedZ: 0,
+        angle: Math.random() * Math.PI * 2,
+        angleSpeed: (Math.random() - 0.5) * 0.04,
+        tilt: Math.random() * Math.PI,
+        tiltSpeed: 0.02 + Math.random() * 0.04,
+        flip: Math.random() * Math.PI,
+        flipSpeed: 0.03 + Math.random() * 0.05,
         opacity: 1,
-        swaySpeed: 0.02 + Math.random() * 0.03,
+        swaySpeed: 0.025 + Math.random() * 0.035,
+        swayRadius: 25 + Math.random() * 35,
         swayOffset: Math.random() * Math.PI * 2,
       })
     }
@@ -88,7 +115,7 @@ export function PetalShower() {
     petalsRef.current = [...petalsRef.current, ...newPetals]
   }
 
-  // Listen for global custom event to trigger shower anywhere
+  // Listen for global custom event
   useEffect(() => {
     const handleGlobalTrigger = () => triggerShower()
     window.addEventListener('trigger_petal_shower', handleGlobalTrigger)
@@ -107,7 +134,7 @@ export function PetalShower() {
     canvas.height = window.innerHeight
 
     let startTime = Date.now()
-    const duration = 4200 // 4.2 seconds shower
+    const duration = 4600 // 4.6 seconds graceful fall
 
     const render = () => {
       const elapsed = Date.now() - startTime
@@ -115,60 +142,36 @@ export function PetalShower() {
 
       petalsRef.current.forEach((p) => {
         p.swayOffset += p.swaySpeed
-        p.x += p.speedX + Math.sin(p.swayOffset) * 1.8
-        p.y += p.speedY
-        p.rotation += p.rotationSpeed
+        p.tilt += p.tiltSpeed
+        p.flip += p.flipSpeed
+        p.angle += p.angleSpeed
 
-        // Fade out toward end
-        if (elapsed > duration * 0.7) {
-          p.opacity = Math.max(0, 1 - (elapsed - duration * 0.7) / (duration * 0.3))
+        p.x += p.speedX + Math.sin(p.swayOffset) * (p.swayRadius * 0.05)
+        p.y += p.speedY * p.z
+
+        // Fade out smoothly near end of animation
+        if (elapsed > duration * 0.65) {
+          p.opacity = Math.max(0, 1 - (elapsed - duration * 0.65) / (duration * 0.35))
         }
 
         ctx.save()
         ctx.translate(p.x, p.y)
-        ctx.rotate((p.rotation * Math.PI) / 180)
-        ctx.globalAlpha = p.opacity
+        ctx.rotate(p.angle)
 
-        if (p.type === 'akshinthalu') {
-          // Yellow Turmeric Dipped Rice Grain (అక్షతలు)
-          ctx.fillStyle = '#ffd700'
-          ctx.beginPath()
-          ctx.ellipse(0, 0, p.size * 0.6, p.size * 1.6, Math.PI / 4, 0, 2 * Math.PI)
-          ctx.fill()
-          ctx.strokeStyle = '#e6a100'
-          ctx.lineWidth = 0.5
-          ctx.stroke()
-        } else if (p.type === 'marigold') {
-          // Bright Orange-Gold Marigold Petal (బంతిపూల రేకులు)
-          ctx.fillStyle = '#ff9800'
-          ctx.beginPath()
-          ctx.ellipse(0, 0, p.size * 0.8, p.size * 1.4, 0, 0, 2 * Math.PI)
-          ctx.fill()
-        } else if (p.type === 'rose-pink') {
-          // Soft Pink Rose Petal
-          ctx.fillStyle = '#f06292'
-          ctx.beginPath()
-          ctx.ellipse(0, 0, p.size, p.size * 1.3, 0, 0, 2 * Math.PI)
-          ctx.fill()
-        } else if (p.type === 'gold-sparkle') {
-          // Golden Dust Sparkle
-          ctx.fillStyle = '#fff0a6'
-          ctx.beginPath()
-          ctx.arc(0, 0, p.size * 0.4, 0, 2 * Math.PI)
-          ctx.fill()
-        } else {
-          // Deep Crimson Red Rose Petal (ఎరుపు గులాబీ రేకులు)
-          ctx.fillStyle = '#b71c1c'
-          ctx.beginPath()
-          ctx.ellipse(0, 0, p.size, p.size * 1.4, 0, 0, 2 * Math.PI)
-          ctx.fill()
-        }
+        // 3D Tumbling Projection (cosine scaling)
+        const scaleX = Math.cos(p.tilt) * p.z
+        const scaleY = Math.sin(p.flip) * p.z
+        ctx.scale(scaleX, scaleY)
+        ctx.globalAlpha = Math.max(0.05, p.opacity)
+
+        // ── 🎨 Render Master Botanical Flower & Petal Shapes ──
+        drawBotanicalElement(ctx, p)
 
         ctx.restore()
       })
 
-      // Clean up petals that fell off screen
-      petalsRef.current = petalsRef.current.filter((p) => p.y < canvas.height + 50 && p.opacity > 0)
+      // Remove fallen petals
+      petalsRef.current = petalsRef.current.filter((p) => p.y < canvas.height + 60 && p.opacity > 0)
 
       if (elapsed < duration || petalsRef.current.length > 0) {
         animationFrameRef.current = requestAnimationFrame(render)
@@ -184,6 +187,125 @@ export function PetalShower() {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
     }
   }, [isActive])
+
+  // ── Botanical Drawing Procedures ──
+  const drawBotanicalElement = (ctx: CanvasRenderingContext2D, p: BotanicalPetal) => {
+    const s = p.size
+
+    if (p.variety === 'velvet-rose') {
+      // 🌹 Velvet Crimson Rose Petal (Organic curved heart shape with velvet ombre)
+      const grad = ctx.createRadialGradient(-s * 0.2, -s * 0.3, s * 0.1, 0, 0, s * 1.2)
+      grad.addColorStop(0, '#e53935') // Soft bright crimson highlight
+      grad.addColorStop(0.4, '#b71c1c') // Rich red velvet
+      grad.addColorStop(0.85, '#680808') // Deep royal shadow
+      grad.addColorStop(1, '#3d0303')
+
+      ctx.fillStyle = grad
+      ctx.beginPath()
+      ctx.moveTo(0, s * 0.9) // Base calyx
+      ctx.bezierCurveTo(-s * 0.7, s * 0.5, -s * 0.95, -s * 0.4, -s * 0.4, -s * 0.9)
+      ctx.bezierCurveTo(-s * 0.1, -s * 1.05, s * 0.1, -s * 1.05, s * 0.4, -s * 0.9)
+      ctx.bezierCurveTo(s * 0.95, -s * 0.4, s * 0.7, s * 0.5, 0, s * 0.9)
+      ctx.closePath()
+      ctx.fill()
+
+      // Subtle delicate center vein
+      ctx.strokeStyle = 'rgba(255, 180, 180, 0.25)'
+      ctx.lineWidth = 0.8
+      ctx.beginPath()
+      ctx.moveTo(0, s * 0.8)
+      ctx.quadraticCurveTo(s * 0.05, 0, 0, -s * 0.7)
+      ctx.stroke()
+    } else if (p.variety === 'pink-rose') {
+      // 🌸 Soft Pink Rose Petal
+      const grad = ctx.createRadialGradient(-s * 0.1, -s * 0.2, s * 0.1, 0, 0, s * 1.1)
+      grad.addColorStop(0, '#fff0f5')
+      grad.addColorStop(0.3, '#f48fb1')
+      grad.addColorStop(0.8, '#d81b60')
+      grad.addColorStop(1, '#880e4f')
+
+      ctx.fillStyle = grad
+      ctx.beginPath()
+      ctx.moveTo(0, s * 0.85)
+      ctx.bezierCurveTo(-s * 0.65, s * 0.4, -s * 0.85, -s * 0.4, -s * 0.35, -s * 0.85)
+      ctx.bezierCurveTo(0, -s * 1.0, 0, -s * 1.0, s * 0.35, -s * 0.85)
+      ctx.bezierCurveTo(s * 0.85, -s * 0.4, s * 0.65, s * 0.4, 0, s * 0.85)
+      ctx.closePath()
+      ctx.fill()
+    } else if (p.variety === 'marigold-saffron') {
+      // 🏵️ Saffron Marigold Petal (Fluted ruffly wedding marigold)
+      const grad = ctx.createLinearGradient(0, s, 0, -s)
+      grad.addColorStop(0, '#e65100') // Deep orange base
+      grad.addColorStop(0.5, '#ff9800') // Vibrant marigold
+      grad.addColorStop(0.95, '#ffd54f') // Saffron gold ruffled tip
+
+      ctx.fillStyle = grad
+      ctx.beginPath()
+      ctx.moveTo(0, s * 0.8)
+      ctx.bezierCurveTo(-s * 0.4, s * 0.3, -s * 0.55, -s * 0.4, -s * 0.2, -s * 0.8)
+      // Ruffled scalloped tip
+      ctx.lineTo(0, -s * 0.95)
+      ctx.lineTo(s * 0.2, -s * 0.8)
+      ctx.bezierCurveTo(s * 0.55, -s * 0.4, s * 0.4, s * 0.3, 0, s * 0.8)
+      ctx.closePath()
+      ctx.fill()
+    } else if (p.variety === 'jasmine-mogra') {
+      // 🌼 Scented Jasmine Floret (మల్లెపూవు - 5 Petal Star with golden pistil)
+      ctx.fillStyle = '#fffdf7'
+      for (let j = 0; j < 5; j++) {
+        ctx.save()
+        ctx.rotate((j * Math.PI * 2) / 5)
+        ctx.beginPath()
+        ctx.ellipse(0, -s * 0.5, s * 0.22, s * 0.45, 0, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.restore()
+      }
+      // Golden center core
+      ctx.fillStyle = '#fbc02d'
+      ctx.beginPath()
+      ctx.arc(0, 0, s * 0.18, 0, Math.PI * 2)
+      ctx.fill()
+    } else if (p.variety === 'lotus-petal') {
+      // 🪷 Sacred Lotus Petal (కమల రేకు)
+      const grad = ctx.createLinearGradient(0, s, 0, -s)
+      grad.addColorStop(0, '#ffffff')
+      grad.addColorStop(0.5, '#f8bbd0')
+      grad.addColorStop(1, '#c2185b')
+
+      ctx.fillStyle = grad
+      ctx.beginPath()
+      ctx.moveTo(0, s * 0.9)
+      ctx.bezierCurveTo(-s * 0.5, s * 0.3, -s * 0.45, -s * 0.5, 0, -s * 0.95)
+      ctx.bezierCurveTo(s * 0.45, -s * 0.5, s * 0.5, s * 0.3, 0, s * 0.9)
+      ctx.closePath()
+      ctx.fill()
+    } else if (p.variety === 'sacred-akshintalu') {
+      // 🌾 Sacred Turmeric-Dipped Rice Grain (అక్షతలు)
+      const grad = ctx.createLinearGradient(-s, -s, s, s)
+      grad.addColorStop(0, '#fff59d') // Highlight
+      grad.addColorStop(0.4, '#ffd700') // Turmeric Gold
+      grad.addColorStop(1, '#c98a00') // Warm Saffron shade
+
+      ctx.fillStyle = grad
+      ctx.beginPath()
+      ctx.ellipse(0, 0, s * 0.5, s * 1.5, Math.PI / 4, 0, 2 * Math.PI)
+      ctx.fill()
+
+      // Delicate natural rice grain crease
+      ctx.strokeStyle = 'rgba(180, 110, 0, 0.4)'
+      ctx.lineWidth = 0.5
+      ctx.beginPath()
+      ctx.moveTo(-s * 0.2, -s * 0.8)
+      ctx.lineTo(s * 0.2, s * 0.8)
+      ctx.stroke()
+    } else {
+      // ✨ Golden Stardust Sparkle
+      ctx.fillStyle = '#fff9c4'
+      ctx.beginPath()
+      ctx.arc(0, 0, s * 0.25, 0, 2 * Math.PI)
+      ctx.fill()
+    }
+  }
 
   return (
     <>
