@@ -13,7 +13,17 @@ interface MusicPlayerProps {
 }
 
 export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
-  const playlist = weddingData.playlist
+  const [playlist, setPlaylist] = useState<AudioTrack[]>(() => {
+    try {
+      const saved = localStorage.getItem('wedding_custom_playlist')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch {}
+    return weddingData.playlist
+  })
+
   const [isOpen, setIsOpen] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -28,8 +38,34 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
   const currentTrack = playlist[currentTrackIndex] || playlist[0]
   const activeCover = customAlbumCover || currentTrack?.cover || weddingData.couple.avatarImage
 
+  // Listen for admin playlist updates
   useEffect(() => {
+    const handlePlaylistUpdate = () => {
+      try {
+        const saved = localStorage.getItem('wedding_custom_playlist')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPlaylist(parsed)
+            setCurrentTrackIndex(0)
+            return
+          }
+        }
+      } catch {}
+      setPlaylist(weddingData.playlist)
+    }
+    window.addEventListener('playlist_updated', handlePlaylistUpdate)
+    window.addEventListener('storage', handlePlaylistUpdate)
+    return () => {
+      window.removeEventListener('playlist_updated', handlePlaylistUpdate)
+      window.removeEventListener('storage', handlePlaylistUpdate)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!currentTrack?.url) return
     const audio = new Audio(currentTrack.url)
+    audioRef.current = audio
     audio.volume = isMuted ? 0 : volume
     audio.loop = isLoop
 
@@ -51,7 +87,7 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
       audio.pause()
       audio.src = ''
     }
-  }, [currentTrackIndex])
+  }, [currentTrackIndex, playlist])
 
   useEffect(() => {
     if (audioRef.current) {

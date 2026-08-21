@@ -10,7 +10,7 @@ import {
   type RsvpRecord,
   type GuestPhotoItem,
 } from '../../lib/supabase'
-import type { WishItem } from '../../types/wedding'
+import type { WishItem, AudioTrack } from '../../types/wedding'
 import { weddingData } from '../../data/weddingData'
 
 interface AdminDashboardProps {
@@ -29,11 +29,33 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   const [wishes, setWishes] = useState<WishItem[]>([])
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoItem[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'rsvps' | 'photos' | 'media' | 'live'>('rsvps')
+  const [activeTab, setActiveTab] = useState<'rsvps' | 'photos' | 'media' | 'songs' | 'live'>('rsvps')
   const [rsvpFilter, setRsvpFilter] = useState<'all' | 'yes' | 'maybe' | 'no'>('all')
   const [photoFilter, setPhotoFilter] = useState<'all' | 'visible' | 'hidden'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<GuestPhotoItem | null>(null)
+
+  // 🎵 Custom Playlist & Songs Controls
+  const [adminPlaylist, setAdminPlaylist] = useState<AudioTrack[]>(() => {
+    try {
+      const saved = localStorage.getItem('wedding_custom_playlist')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch {}
+    return weddingData.playlist
+  })
+  const [newSong, setNewSong] = useState({
+    titleTelugu: '',
+    titleEnglish: '',
+    subtitle: '',
+    url: '',
+    cover: '',
+  })
+  const [songSaveSuccess, setSongSaveSuccess] = useState(false)
+  const [previewSongId, setPreviewSongId] = useState<number | null>(null)
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null)
 
   // Live Stream Controls
   const [adminShowLiveSection, setAdminShowLiveSection] = useState(() => {
@@ -64,6 +86,74 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null)
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null)
+
+  // Song Preview Toggle
+  const togglePreviewSong = (id: number, url: string) => {
+    if (previewSongId === id) {
+      previewAudioRef.current?.pause()
+      setPreviewSongId(null)
+    } else {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause()
+      }
+      const audio = new Audio(url)
+      previewAudioRef.current = audio
+      setPreviewSongId(id)
+      audio.play().catch(() => {})
+      audio.onended = () => setPreviewSongId(null)
+      audio.onerror = () => setPreviewSongId(null)
+    }
+  }
+
+  const handleAddSong = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newSong.url.trim() || !newSong.titleEnglish.trim()) return
+
+    const newTrack: AudioTrack = {
+      id: Date.now(),
+      titleTelugu: newSong.titleTelugu.trim() || newSong.titleEnglish.trim(),
+      titleEnglish: newSong.titleEnglish.trim().toUpperCase(),
+      subtitle: newSong.subtitle.trim() || '🪔 Sacred Telugu Wedding Music',
+      url: newSong.url.trim(),
+      cover: newSong.cover.trim() || undefined,
+    }
+
+    const updated = [...adminPlaylist, newTrack]
+    setAdminPlaylist(updated)
+    localStorage.setItem('wedding_custom_playlist', JSON.stringify(updated))
+    window.dispatchEvent(new Event('playlist_updated'))
+
+    setNewSong({ titleTelugu: '', titleEnglish: '', subtitle: '', url: '', cover: '' })
+    setSongSaveSuccess(true)
+    setTimeout(() => setSongSaveSuccess(false), 3000)
+  }
+
+  const handleDeleteSong = (id: number) => {
+    if (adminPlaylist.length <= 1) {
+      alert('You must keep at least 1 song in the playlist!')
+      return
+    }
+    if (previewSongId === id) {
+      previewAudioRef.current?.pause()
+      setPreviewSongId(null)
+    }
+    const updated = adminPlaylist.filter((t) => t.id !== id)
+    setAdminPlaylist(updated)
+    localStorage.setItem('wedding_custom_playlist', JSON.stringify(updated))
+    window.dispatchEvent(new Event('playlist_updated'))
+  }
+
+  const handleResetPlaylist = () => {
+    if (confirm('Reset to the default sacred Telugu wedding soundtrack?')) {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause()
+        setPreviewSongId(null)
+      }
+      setAdminPlaylist(weddingData.playlist)
+      localStorage.removeItem('wedding_custom_playlist')
+      window.dispatchEvent(new Event('playlist_updated'))
+    }
+  }
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -359,6 +449,16 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                   }`}
                 >
                   🎙️ Voice &amp; Video Capsule ({wishes.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('songs')}
+                  className={`px-4 py-2 rounded-full text-xs font-display font-bold transition-all ${
+                    activeTab === 'songs'
+                      ? 'bg-crimson text-gold-light shadow-md'
+                      : 'text-[#5c0a0a] hover:bg-gold/10'
+                  }`}
+                >
+                  🎵 Wedding Songs ({adminPlaylist.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('live')}
@@ -715,6 +815,192 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Tab: Custom Wedding Songs Manager ── */}
+            {activeTab === 'songs' && (
+              <div className="space-y-6 max-w-4xl mx-auto">
+                {/* Header & Reset */}
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-3xl border border-gold/40 shadow-sm">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">🎵</span>
+                      <h3 className="font-display font-bold text-crimson text-base sm:text-lg">
+                        Custom Wedding Songs &amp; Music Player Manager
+                      </h3>
+                    </div>
+                    <p className="font-body text-xs text-[#7a4a4a]">
+                      Add, customize, or replace the background shehnai and auspicious kalyana tracks for Mohan &amp; Leepika's wedding.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleResetPlaylist}
+                    className="px-3.5 py-1.5 rounded-full border border-gold/50 text-[#5c0a0a] text-xs font-display font-semibold hover:bg-gold/15 transition-all"
+                  >
+                    🔄 Reset to Default Shehnai
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Form to Add New Song (5 Cols) */}
+                  <div className="lg:col-span-5 bg-white p-5 rounded-3xl border border-gold/40 shadow-sm space-y-4">
+                    <div className="border-b border-gold/20 pb-2">
+                      <h4 className="font-display font-bold text-crimson text-sm">
+                        ➕ Add New Wedding Song
+                      </h4>
+                      <p className="font-telugu text-[11px] text-gold-dark font-medium">
+                        కొత్త సంగీత గీతం లేదా షెహనాయ్ జోడించండి
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleAddSong} className="space-y-3">
+                      <div>
+                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
+                          Telugu Title (తెలుగు శీర్షిక) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newSong.titleTelugu}
+                          onChange={(e) => setNewSong({ ...newSong, titleTelugu: e.target.value })}
+                          placeholder="e.g. సీతా కళ్యాణ వైభోగమే"
+                          className="w-full rounded-xl px-3.5 py-2 font-telugu text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
+                          English Title *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newSong.titleEnglish}
+                          onChange={(e) => setNewSong({ ...newSong, titleEnglish: e.target.value })}
+                          placeholder="e.g. SITA KALYANA VAIBHOGAME"
+                          className="w-full rounded-xl px-3.5 py-2 font-display text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson uppercase"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
+                          Ceremony Tag / Subtitle
+                        </label>
+                        <input
+                          type="text"
+                          value={newSong.subtitle}
+                          onChange={(e) => setNewSong({ ...newSong, subtitle: e.target.value })}
+                          placeholder="e.g. 🪔 Sacred Talambralu Shehnai"
+                          className="w-full rounded-xl px-3.5 py-2 font-display text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
+                          Audio Stream / MP3 URL *
+                        </label>
+                        <input
+                          type="url"
+                          required
+                          value={newSong.url}
+                          onChange={(e) => setNewSong({ ...newSong, url: e.target.value })}
+                          placeholder="e.g. https://.../audio.mp3"
+                          className="w-full rounded-xl px-3.5 py-2 font-body text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
+                          Album Artwork Image URL (Optional)
+                        </label>
+                        <input
+                          type="url"
+                          value={newSong.cover}
+                          onChange={(e) => setNewSong({ ...newSong, cover: e.target.value })}
+                          placeholder="Leave empty for traditional Telugu art"
+                          className="w-full rounded-xl px-3.5 py-2 font-body text-xs text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
+                        />
+                      </div>
+
+                      {songSaveSuccess && (
+                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold text-center animate-fade-in">
+                          ✓ Song added to player playlist successfully!
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        className="w-full py-2.5 rounded-full font-display text-xs uppercase tracking-widest font-bold text-[#3a0505] bg-gradient-to-r from-gold via-gold-bright to-gold hover:brightness-110 shadow-md transition-all active:scale-95"
+                      >
+                        ➕ Add Song to Playlist
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Active Playlist Tracks List (7 Cols) */}
+                  <div className="lg:col-span-7 bg-white p-5 rounded-3xl border border-gold/40 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-gold/20 pb-2">
+                      <h4 className="font-display font-bold text-crimson text-sm">
+                        🎼 Current Tracks ({adminPlaylist.length})
+                      </h4>
+                      <span className="text-[11px] text-gold-dark font-medium">
+                        Plays in Royal Music Player
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                      {adminPlaylist.map((trk, idx) => (
+                        <div
+                          key={trk.id}
+                          className="flex items-center justify-between p-3 rounded-2xl bg-[#fdfaf2] border border-gold/30 shadow-xs gap-2"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {/* Track Number Badge */}
+                            <span className="w-6 h-6 rounded-full bg-gold/20 text-crimson font-display font-bold text-xs flex items-center justify-center shrink-0">
+                              {idx + 1}
+                            </span>
+
+                            {/* Play Preview Button */}
+                            <button
+                              type="button"
+                              onClick={() => togglePreviewSong(trk.id, trk.url)}
+                              className="w-8 h-8 rounded-full bg-crimson text-white text-xs flex items-center justify-center font-bold hover:scale-105 active:scale-95 shrink-0 shadow-sm"
+                              title="Test Audio"
+                            >
+                              {previewSongId === trk.id ? '⏸' : '▶'}
+                            </button>
+
+                            <div className="min-w-0">
+                              <p className="font-telugu font-bold text-crimson text-xs sm:text-sm truncate">
+                                {trk.titleTelugu}
+                              </p>
+                              <p className="font-display text-[10px] text-gold-dark font-semibold uppercase truncate">
+                                {trk.titleEnglish}
+                              </p>
+                              <p className="font-display text-[9px] text-[#7a4a4a] truncate">
+                                {trk.subtitle}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSong(trk.id)}
+                              className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors"
+                              title="Delete from playlist"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
