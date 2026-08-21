@@ -83,7 +83,22 @@ export function Footer() {
           <p className="font-display text-gold/40 text-[10px] uppercase tracking-[0.35em]">
             ♡ Wishing The Couple A Lifetime of Love &amp; Togetherness ♡
           </p>
-          <div className="pt-2">
+
+          {/* 💖 Made With Love Signature Badge */}
+          <div className="pt-4 pb-1 flex flex-col items-center justify-center gap-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-gold/10 via-gold/20 to-gold/10 border border-gold/40 shadow-lg backdrop-blur-md hover:scale-105 transition-transform">
+              <span className="text-red-400 text-xs animate-pulse">❤️</span>
+              <span className="font-display text-xs sm:text-[13px] font-semibold tracking-wide text-gold-light">
+                Made with love by <span className="text-gold-bright font-bold">nani / koushik</span>
+              </span>
+              <span className="text-red-400 text-xs animate-pulse">❤️</span>
+            </div>
+            <p className="font-telugu text-[10px] text-gold/50">
+              శ్రీరస్తు · శుభమస్తు · అవిఘ్నమస్తు
+            </p>
+          </div>
+
+          <div className="pt-3">
             <button
               onClick={() => {
                 window.location.hash = 'admin'
