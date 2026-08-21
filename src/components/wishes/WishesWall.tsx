@@ -279,10 +279,18 @@ export function WishesWall() {
             sub="ఆత్మీయుల శుభాకాంక్షలు &amp; జ్ఞాపకాలు"
           />
 
-          {/* Intro description */}
-          <p className="text-center font-display italic text-xs sm:text-sm text-[#7a4a4a] max-w-xl mx-auto mb-10 -mt-6">
-            "Whether joining in person or celebrating from afar, share your voice blessings, video messages, and cherished memories with Mohan &amp; Leepika."
-          </p>
+          {/* Intro description & Remote Guest Focus */}
+          <div className="text-center max-w-2xl mx-auto mb-10 -mt-6 space-y-3">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-gold/15 via-gold/30 to-gold/15 border border-gold/50 text-crimson font-display text-xs font-bold shadow-sm">
+              <span>🌍</span>
+              <span>Global &amp; Remote Blessings Portal (దూరపు బంధువుల దీవెనలు)</span>
+              <span>🎙️</span>
+            </div>
+
+            <p className="font-display italic text-xs sm:text-sm text-[#7a4a4a] leading-relaxed">
+              "Cannot attend in person or celebrating from afar? Record a heartfelt voice blessing, attach a personal video greeting, or share cherished photos for Mohan Praneeth &amp; Leepika."
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
@@ -291,11 +299,36 @@ export function WishesWall() {
               <OrnateCard className="space-y-4">
                 <div className="text-center space-y-1">
                   <h3 className="font-display font-semibold text-crimson-dark text-base sm:text-lg">
-                    Send a Voice Note, Video or Wish
+                    Send Voice Blessing, Video or Wish
                   </h3>
                   <p className="font-telugu text-[11px] sm:text-xs text-gold-dark font-medium">
-                    మీ ఆశీస్సులు, మాటల సందేశం లేదా వీడియో పంపండి
+                    మీ ఆశీర్వచనాలు, మాటల సందేశం లేదా వీడియో పంపండి
                   </p>
+                </div>
+
+                {/* Quick Relation Chips */}
+                <div className="flex flex-wrap gap-1.5 justify-center pt-1 pb-2 border-b border-gold/20">
+                  {[
+                    { label: '🇺🇸 USA / Overseas', rel: 'Overseas Family', loc: 'USA' },
+                    { label: '🏡 At-Home Elder', rel: 'Elder Relative', loc: 'At Home' },
+                    { label: '🎉 At Mandapam', rel: 'Wedding Guest', loc: 'Hyderabad' },
+                    { label: '💌 Dear Friend', rel: 'Friend', loc: '' },
+                  ].map((chip, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          relation: chip.rel,
+                          location: chip.loc || prev.location,
+                        }))
+                      }}
+                      className="px-2.5 py-1 rounded-full text-[10px] font-display font-semibold bg-gold/10 hover:bg-gold/25 border border-gold/30 text-[#5c0a0a] transition-all"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -322,7 +355,7 @@ export function WishesWall() {
                         type="text"
                         value={form.relation}
                         onChange={(e) => setForm({ ...form, relation: e.target.value })}
-                        placeholder="e.g. Uncle / Friend"
+                        placeholder="e.g. Uncle / Cousin"
                         className={inputCls}
                       />
                     </div>
@@ -334,7 +367,7 @@ export function WishesWall() {
                         type="text"
                         value={form.location}
                         onChange={(e) => setForm({ ...form, location: e.target.value })}
-                        placeholder="e.g. Dallas, USA / Hyderabad"
+                        placeholder="e.g. Dallas, USA / Vizag"
                         className={inputCls}
                       />
                     </div>

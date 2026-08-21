@@ -9,7 +9,6 @@ import { EventsSection } from './components/events/EventsSection'
 import { VenuesSection } from './components/venues/VenuesSection'
 import { GallerySection } from './components/gallery/GallerySection'
 import { WishesWall } from './components/wishes/WishesWall'
-import { RsvpSection } from './components/rsvp/RsvpSection'
 import { Footer } from './components/common/Footer'
 import { AdminDashboard } from './components/admin/AdminDashboard'
 import { AccessibilityBar } from './components/common/AccessibilityBar'
@@ -75,11 +74,8 @@ export default function App() {
       {/* Photo Gallery & Lightbox */}
       <GallerySection />
 
-      {/* Live Interactive Blessings / Wishes Wall */}
+      {/* 💌 Live & Remote Blessings Wall (Voice, Video, Photos & Greetings) */}
       <WishesWall />
-
-      {/* Guest RSVP & Attendance Registration */}
-      <RsvpSection />
 
       {/* Royal Footer */}
       <Footer />

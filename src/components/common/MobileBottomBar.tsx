@@ -53,14 +53,14 @@ export function MobileBottomBar() {
           </span>
         </button>
 
-        {/* 3. 👑 Central Highlighted RSVP CTA */}
+        {/* 3. 💌 Central Highlighted Send Blessing CTA */}
         <button
-          onClick={() => scrollTo('rsvp')}
+          onClick={() => scrollTo('wishes')}
           className="flex-[1.3] py-2 px-2 rounded-xl bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] text-[#3d0808] font-bold flex flex-col items-center justify-center gap-0.5 shadow-lg shadow-gold/30 active:scale-95 transition-all"
         >
-          <span className="text-xs leading-none">👑</span>
-          <span className="font-display text-[10px] uppercase tracking-wider font-extrabold leading-tight">
-            RSVP NOW
+          <span className="text-xs leading-none">💌</span>
+          <span className="font-telugu text-[10px] font-extrabold leading-tight">
+            దీవెనలు
           </span>
         </button>
 

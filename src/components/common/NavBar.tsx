@@ -24,7 +24,6 @@ export function NavBar() {
     { id: 'venues', label: 'Venues' },
     { id: 'gallery', label: 'Moments' },
     { id: 'wishes', label: 'Blessings' },
-    { id: 'rsvp', label: 'RSVP' },
   ]
 
   const { couple } = weddingData
@@ -82,16 +81,17 @@ export function NavBar() {
             </button>
           ))}
 
-          {/* Luxury Metallic RSVP Button */}
+          {/* Luxury Metallic Blessings Button */}
           <button
-            onClick={() => go('rsvp')}
-            className="px-5 py-2 rounded-full font-display text-[11px] uppercase tracking-[0.18em] text-[#3a0505] font-bold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-[#9b7b1b]/20"
+            onClick={() => go('wishes')}
+            className="px-5 py-2 rounded-full font-display text-[11px] uppercase tracking-[0.18em] text-[#3a0505] font-bold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-[#9b7b1b]/20 flex items-center gap-1.5"
             style={{
               background:
                 'linear-gradient(135deg, #c9a84c 0%, #ffd700 45%, #e8c97a 75%, #c9a84c 100%)',
             }}
           >
-            RSVP
+            <span>💌</span>
+            <span>Blessings</span>
           </button>
 
           {/* Replay Grand Entrance */}
@@ -119,14 +119,15 @@ export function NavBar() {
           </button>
 
           <button
-            onClick={() => go('rsvp')}
-            className="px-3.5 py-1.5 rounded-full font-display text-[10px] uppercase tracking-wider text-[#3a0505] font-bold shadow-sm"
+            onClick={() => go('wishes')}
+            className="px-3.5 py-1.5 rounded-full font-display text-[10px] uppercase tracking-wider text-[#3a0505] font-bold shadow-sm flex items-center gap-1"
             style={{
               background:
                 'linear-gradient(135deg, #c9a84c 0%, #ffd700 50%, #c9a84c 100%)',
             }}
           >
-            RSVP
+            <span>💌</span>
+            <span>Blessings</span>
           </button>
           
           <button
