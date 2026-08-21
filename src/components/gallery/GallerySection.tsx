@@ -3,11 +3,10 @@ import { SectionLabel } from '../common/GoldDivider'
 import { weddingData } from '../../data/weddingData'
 import {
   fetchGuestPhotos,
-  submitGuestPhoto,
   likeGuestPhoto,
   type GuestPhotoItem,
 } from '../../lib/supabase'
-import { compressImage } from '../../lib/imageCompressor'
+import { PhotoBoothModal } from './PhotoBoothModal'
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
@@ -33,12 +32,7 @@ export function GallerySection() {
   // Guest Photos Stream
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoItem[]>([])
   const [activeTab, setActiveTab] = useState<'all' | 'official' | 'guests'>('all')
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
-  const [uploaderName, setUploaderName] = useState('')
-  const [uploaderCaption, setUploaderCaption] = useState('')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
+  const [isPhotoBoothOpen, setIsPhotoBoothOpen] = useState(false)
   const [likedPhotoIds, setLikedPhotoIds] = useState<Set<string>>(new Set())
 
   const loadGuestPhotos = async () => {
@@ -50,7 +44,7 @@ export function GallerySection() {
     loadGuestPhotos()
     const handleOpenPhotoBooth = () => {
       setActiveTab('guests')
-      setIsUploadModalOpen(true)
+      setIsPhotoBoothOpen(true)
     }
     window.addEventListener('open_photo_booth_modal', handleOpenPhotoBooth)
     window.addEventListener('wedding_photos_updated', loadGuestPhotos)
@@ -59,42 +53,6 @@ export function GallerySection() {
       window.removeEventListener('wedding_photos_updated', loadGuestPhotos)
     }
   }, [])
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setSelectedFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleUploadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedFile) return
-
-    setUploading(true)
-    try {
-      // ⚡ High-speed client-side image compression (downsizes 12MB raw photo to ~400KB in ~100ms)
-      const compressedBlob = await compressImage(selectedFile, 1600, 1600, 0.82)
-      await submitGuestPhoto(uploaderName, uploaderCaption, compressedBlob)
-
-      // Reset and close modal
-      setSelectedFile(null)
-      setPhotoPreview(null)
-      setUploaderName('')
-      setUploaderCaption('')
-      setIsUploadModalOpen(false)
-      loadGuestPhotos()
-    } catch (err) {
-      alert('Failed to upload photo. Please try again.')
-    } finally {
-      setUploading(false)
-    }
-  }
 
   const handleLike = (photoId: string) => {
     if (likedPhotoIds.has(photoId)) return
@@ -126,10 +84,10 @@ export function GallerySection() {
 
           {/* Subtitle description */}
           <p className="text-center font-display italic text-xs sm:text-sm text-[#7a4a4a] max-w-xl mx-auto mb-8 -mt-6">
-            "Snap a live selfie at the wedding hall, share your moments with Mohan &amp; Leepika, and become part of our universal wedding album!"
+            "Open our in-web Snapchat photo booth, apply royal wedding frames &amp; golden filters, and share your live selfies with Mohan &amp; Leepika!"
           </p>
 
-          {/* Gallery Header Controls: Tabs & 1-Tap Camera Upload Button */}
+          {/* Gallery Header Controls: Tabs & 1-Tap Snapchat Camera Button */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-8 pb-3 border-b border-gold/30">
             <div className="flex items-center gap-2">
               {[
@@ -151,13 +109,13 @@ export function GallerySection() {
               ))}
             </div>
 
-            {/* 📸 1-Tap Live Camera Upload CTA */}
+            {/* 📸 1-Tap Snapchat-Style Live Camera Shutter Button */}
             <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="px-5 py-2 rounded-full font-display text-xs uppercase tracking-wider font-bold text-[#3a0505] bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] hover:brightness-110 shadow-md shadow-gold/25 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2"
+              onClick={() => setIsPhotoBoothOpen(true)}
+              className="px-5 py-2.5 rounded-full font-display text-xs uppercase tracking-wider font-bold text-[#3a0505] bg-gradient-to-r from-[#ffd700] via-[#ffe58f] to-[#c9a84c] hover:brightness-110 shadow-lg shadow-gold/30 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2"
             >
-              <span className="text-sm">📸</span>
-              <span>Open Photo Booth (Snap / Upload)</span>
+              <span className="text-base animate-bounce">📸</span>
+              <span>Open Photo Booth (Snap Selfie)</span>
             </button>
           </div>
 
@@ -219,18 +177,18 @@ export function GallerySection() {
 
               {guestPhotos.length === 0 ? (
                 <div className="text-center py-12 rounded-3xl bg-white border border-gold/30 p-6 space-y-3">
-                  <span className="text-4xl">📷</span>
+                  <span className="text-4xl animate-bounce">📷</span>
                   <p className="font-display font-bold text-crimson text-base">
-                    Be the First to Share a Wedding Photo!
+                    Be the First to Snap a Wedding Selfie!
                   </p>
                   <p className="font-body text-xs text-[#7a4a4a] max-w-md mx-auto">
-                    Take a selfie at the mandapam or reception and upload it here to contribute to Mohan &amp; Leepika's universal photo album.
+                    Take a live selfie with our royal photo booth filters and post it directly to Mohan &amp; Leepika's wedding album.
                   </p>
                   <button
-                    onClick={() => setIsUploadModalOpen(true)}
+                    onClick={() => setIsPhotoBoothOpen(true)}
                     className="px-6 py-2.5 rounded-full bg-crimson text-gold-light font-display text-xs font-bold hover:bg-crimson-dark shadow-md"
                   >
-                    📸 Snap &amp; Upload Now
+                    📸 Open Camera &amp; Snap Now
                   </button>
                 </div>
               ) : (
@@ -263,7 +221,7 @@ export function GallerySection() {
                           )}
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t border-gold/15 text-[10px]">
-                          <span className="text-[#9b7b1b] font-medium">Guest Photo</span>
+                          <span className="text-[#9b7b1b] font-medium">Guest Snap</span>
                           <button
                             onClick={() => handleLike(item.id)}
                             className={`flex items-center gap-1 font-display font-semibold transition-transform active:scale-95 ${
@@ -307,105 +265,12 @@ export function GallerySection() {
         </div>
       )}
 
-      {/* ── 4. 📸 Guest Photo Upload Modal ── */}
-      {isUploadModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md cursor-pointer"
-          onClick={() => setIsUploadModalOpen(false)}
-        >
-          <div
-            className="relative max-w-md w-full bg-[#fdfaf2] p-6 rounded-3xl border-2 border-gold shadow-2xl space-y-4 cursor-default modal-luxury-animation"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-gold/30">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📸</span>
-                <h3 className="font-display font-bold text-crimson text-base">
-                  Share a Wedding Moment
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsUploadModalOpen(false)}
-                className="w-7 h-7 rounded-full bg-crimson text-white text-xs font-bold hover:bg-crimson-dark"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleUploadSubmit} className="space-y-3.5">
-              <div>
-                <label className="font-display text-crimson text-[10px] uppercase tracking-wider block mb-1 font-semibold">
-                  Your Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={uploaderName}
-                  onChange={(e) => setUploaderName(e.target.value)}
-                  placeholder="e.g. Anand & Divya"
-                  className="w-full rounded-xl px-3 py-2 text-xs border border-gold/40 bg-white focus:outline-none focus:border-crimson"
-                />
-              </div>
-
-              <div>
-                <label className="font-display text-crimson text-[10px] uppercase tracking-wider block mb-1 font-semibold">
-                  Short Caption / Memory Note (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={uploaderCaption}
-                  onChange={(e) => setUploaderCaption(e.target.value)}
-                  placeholder="e.g. Sangeet dance moments with Mohan bro!"
-                  className="w-full rounded-xl px-3 py-2 text-xs border border-gold/40 bg-white focus:outline-none focus:border-crimson"
-                />
-              </div>
-
-              <div>
-                <label className="font-display text-crimson text-[10px] uppercase tracking-wider block mb-1 font-semibold">
-                  Select Photo or Snap Live with Camera *
-                </label>
-                <label className="w-full cursor-pointer rounded-2xl border-2 border-dashed border-gold/60 p-6 flex flex-col items-center justify-center gap-2 bg-[#fefbf3] hover:bg-gold/10 transition-colors">
-                  <span className="text-3xl">📷</span>
-                  <span className="font-display text-xs font-bold text-crimson">
-                    {selectedFile ? '✓ Photo Selected (Tap to Change)' : 'Tap to Open Camera or Gallery'}
-                  </span>
-                  <span className="text-[10px] text-[#7a4a4a]">
-                    Auto-compressed in ~0.1s for high speed upload
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    required
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
-              {photoPreview && (
-                <div className="relative w-28 h-28 mx-auto rounded-2xl overflow-hidden border border-gold/50 shadow-md">
-                  <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedFile(null); setPhotoPreview(null) }}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-crimson text-white text-[10px] flex items-center justify-center"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={uploading || !selectedFile}
-                className="w-full py-3 rounded-full font-display text-xs uppercase tracking-widest font-bold text-white bg-gradient-to-r from-crimson-dark via-crimson to-crimson-dark hover:brightness-110 shadow-lg shadow-crimson/25 transition-all duration-300 disabled:opacity-50"
-              >
-                {uploading ? '⚡ Compressing & Uploading...' : '📸 Post to Wedding Album'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* ── 4. 📸 Snapchat-Style Wedding Photo Booth Camera Modal ── */}
+      <PhotoBoothModal
+        isOpen={isPhotoBoothOpen}
+        onClose={() => setIsPhotoBoothOpen(false)}
+        onPhotoUploaded={loadGuestPhotos}
+      />
     </section>
   )
 }
