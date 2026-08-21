@@ -84,6 +84,10 @@ export interface VenueLocation {
   time: string
   map: string
   icon: string
+  uberLink?: string
+  appleMapsLink?: string
+  parkingInfo?: string
+  gateInfo?: string
 }
 
 export interface RitualStory {

@@ -103,6 +103,35 @@ export function EventsSection() {
                     </p>
                   </div>
 
+                  {/* ⏰ Tomorrow's Step-by-Step Ceremony Flow for Sumuhurtham */}
+                  {ev.id === 'muhurtham' && (
+                    <div className="bg-black/35 rounded-2xl p-4 border border-gold/30 space-y-2 text-left">
+                      <p className="font-display text-[10px] uppercase tracking-[0.2em] text-gold font-bold flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gold-bright animate-ping" />
+                        <span>Tomorrow Evening Schedule (Hyderabad)</span>
+                      </p>
+                      
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex items-center justify-between py-1 border-b border-white/10">
+                          <span className="text-gold-light font-bold">07:00 PM</span>
+                          <span className="text-parchment/90 font-medium">Baraat &amp; Edurukolu (ఎదురుకోలు)</span>
+                        </div>
+                        <div className="flex items-center justify-between py-1 border-b border-white/10 text-gold-bright font-bold">
+                          <span>08:00 PM</span>
+                          <span>Royal Wedding Feast (విందు భోజనం) 🍲</span>
+                        </div>
+                        <div className="flex items-center justify-between py-1 border-b border-white/10">
+                          <span className="text-gold-light font-bold">10:30 PM</span>
+                          <span className="text-parchment/90 font-medium">Gauri Pooja &amp; Bride's Entry</span>
+                        </div>
+                        <div className="flex items-center justify-between py-1 text-gold-bright font-bold bg-gold/15 px-2 rounded-lg">
+                          <span>11:59 PM</span>
+                          <span>Sumuhurtham (జీలకర్ర బెల్లం) 🪔</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Dress Code & Venue */}
                   <div className="bg-black/25 rounded-xl p-3.5 border border-gold/20 space-y-2 text-center">
                     <div className="text-xs">
