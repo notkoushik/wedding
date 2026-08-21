@@ -36,6 +36,9 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<GuestPhotoItem | null>(null)
 
   // Live Stream Controls
+  const [adminShowLiveSection, setAdminShowLiveSection] = useState(() => {
+    return localStorage.getItem('wedding_show_live_section') === 'true'
+  })
   const [adminStreamUrl, setAdminStreamUrl] = useState(() => {
     return localStorage.getItem('wedding_live_stream_url') || weddingData.liveStream?.streamUrl || ''
   })
@@ -700,6 +703,37 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                   </p>
                 </div>
 
+                {/* ── 1. Master Show / Hide on Public Website Toggle ── */}
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-gold/10 border-2 border-gold/50 shadow-xs">
+                  <div>
+                    <p className="font-display font-bold text-xs sm:text-sm text-crimson">
+                      Public Website Section Visibility
+                    </p>
+                    <p className="text-[11px] text-[#7a4a4a] mt-0.5">
+                      {adminShowLiveSection
+                        ? '🟢 Section & "🔴 Live" nav button are currently VISIBLE to guests.'
+                        : '🙈 Section is currently HIDDEN from the public website (Default).'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !adminShowLiveSection
+                      setAdminShowLiveSection(next)
+                      localStorage.setItem('wedding_show_live_section', next ? 'true' : 'false')
+                      window.dispatchEvent(new Event('live_stream_updated'))
+                    }}
+                    className={`px-4 py-2 rounded-full text-xs font-display font-bold transition-all shadow-md active:scale-95 ${
+                      adminShowLiveSection
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-neutral-300 hover:bg-neutral-400 text-neutral-800'
+                    }`}
+                  >
+                    {adminShowLiveSection ? '🟢 Section Visible' : '🙈 Section Hidden'}
+                  </button>
+                </div>
+
                 <form
                   onSubmit={(e) => {
                     e.preventDefault()
@@ -709,7 +743,7 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                     setLiveSaveSuccess(true)
                     setTimeout(() => setLiveSaveSuccess(false), 3000)
                   }}
-                  className="space-y-4"
+                  className="space-y-4 pt-2 border-t border-gold/20"
                 >
                   {/* Toggle Is Live */}
                   <div className="flex items-center justify-between p-3.5 rounded-2xl bg-gold/10 border border-gold/30">

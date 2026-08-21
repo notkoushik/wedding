@@ -46,13 +46,19 @@ export function LiveMandapamSection() {
   const [ref, visible] = useInView()
   const liveConfig = weddingData.liveStream
 
-  // Allow live stream link to be updated in sessionStorage or localStorage by family
+  // Visibility toggle controlled by Admin (Default: false / hidden)
+  const [isSectionVisible, setIsSectionVisible] = useState(() => {
+    const saved = localStorage.getItem('wedding_show_live_section')
+    return saved === 'true' // hidden by default unless admin toggles it ON
+  })
+
+  // Stream configuration
   const [streamUrl, setStreamUrl] = useState(() => {
     return localStorage.getItem('wedding_live_stream_url') || liveConfig?.streamUrl || ''
   })
   const [isLiveActive, setIsLiveActive] = useState(() => {
     const saved = localStorage.getItem('wedding_is_live_active')
-    return saved !== null ? saved === 'true' : Boolean(liveConfig?.isLive)
+    return saved === 'true'
   })
 
   const [isPlayingEmbed, setIsPlayingEmbed] = useState(false)
@@ -60,14 +66,25 @@ export function LiveMandapamSection() {
   // Listen for admin live stream updates
   useEffect(() => {
     const handleUpdate = () => {
+      const savedVisible = localStorage.getItem('wedding_show_live_section') === 'true'
       const savedUrl = localStorage.getItem('wedding_live_stream_url') || liveConfig?.streamUrl || ''
-      const savedLive = localStorage.getItem('wedding_is_live_active')
+      const savedLive = localStorage.getItem('wedding_is_live_active') === 'true'
+      setIsSectionVisible(savedVisible)
       setStreamUrl(savedUrl)
-      if (savedLive !== null) setIsLiveActive(savedLive === 'true')
+      setIsLiveActive(savedLive)
     }
     window.addEventListener('live_stream_updated', handleUpdate)
-    return () => window.removeEventListener('live_stream_updated', handleUpdate)
+    window.addEventListener('storage', handleUpdate)
+    return () => {
+      window.removeEventListener('live_stream_updated', handleUpdate)
+      window.removeEventListener('storage', handleUpdate)
+    }
   }, [liveConfig])
+
+  // If hidden by admin, do not render on page
+  if (!isSectionVisible) {
+    return null
+  }
 
   const embedUrl = getYouTubeEmbedUrl(streamUrl)
 

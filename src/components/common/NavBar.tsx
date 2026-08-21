@@ -16,12 +16,26 @@ export function NavBar() {
     setOpen(false)
   }
 
+  const [showLive, setShowLive] = useState(() => localStorage.getItem('wedding_show_live_section') === 'true')
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setShowLive(localStorage.getItem('wedding_show_live_section') === 'true')
+    }
+    window.addEventListener('live_stream_updated', handleUpdate)
+    window.addEventListener('storage', handleUpdate)
+    return () => {
+      window.removeEventListener('live_stream_updated', handleUpdate)
+      window.removeEventListener('storage', handleUpdate)
+    }
+  }, [])
+
   const links = [
     { id: 'hero', label: 'Home' },
     { id: 'rituals', label: 'Traditions' },
     { id: 'invitation', label: 'Shubhlekha' },
     { id: 'events', label: 'Ceremonies' },
-    { id: 'live', label: '🔴 Live' },
+    ...(showLive ? [{ id: 'live', label: '🔴 Live' }] : []),
     { id: 'venues', label: 'Venues' },
     { id: 'gallery', label: 'Moments' },
     { id: 'wishes', label: 'Blessings' },
