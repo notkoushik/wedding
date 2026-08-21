@@ -29,11 +29,21 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   const [wishes, setWishes] = useState<WishItem[]>([])
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoItem[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'rsvps' | 'photos' | 'media'>('rsvps')
+  const [activeTab, setActiveTab] = useState<'rsvps' | 'photos' | 'media' | 'live'>('rsvps')
   const [rsvpFilter, setRsvpFilter] = useState<'all' | 'yes' | 'maybe' | 'no'>('all')
   const [photoFilter, setPhotoFilter] = useState<'all' | 'visible' | 'hidden'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<GuestPhotoItem | null>(null)
+
+  // Live Stream Controls
+  const [adminStreamUrl, setAdminStreamUrl] = useState(() => {
+    return localStorage.getItem('wedding_live_stream_url') || weddingData.liveStream?.streamUrl || ''
+  })
+  const [adminIsLive, setAdminIsLive] = useState(() => {
+    const saved = localStorage.getItem('wedding_is_live_active')
+    return saved !== null ? saved === 'true' : Boolean(weddingData.liveStream?.isLive)
+  })
+  const [liveSaveSuccess, setLiveSaveSuccess] = useState(false)
 
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null)
@@ -333,6 +343,17 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                   }`}
                 >
                   🎙️ Voice &amp; Video Capsule ({wishes.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('live')}
+                  className={`px-4 py-2 rounded-full text-xs font-display font-bold transition-all flex items-center gap-1.5 ${
+                    activeTab === 'live'
+                      ? 'bg-red-700 text-white shadow-md'
+                      : 'text-red-700 hover:bg-red-50'
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+                  <span>🔴 Live Stream Webcast</span>
                 </button>
               </div>
 
@@ -661,6 +682,90 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* ── Tab 4: Live Mandapam Webcast Control ── */}
+            {activeTab === 'live' && (
+              <div className="space-y-5 max-w-xl mx-auto bg-white p-6 rounded-3xl border border-gold/40 shadow-sm">
+                <div className="text-center space-y-1">
+                  <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl mx-auto mb-2">
+                    🔴
+                  </div>
+                  <h3 className="font-display font-bold text-crimson text-lg">
+                    Live Mandapam Webcast Stream Manager
+                  </h3>
+                  <p className="font-body text-xs text-[#7a4a4a]">
+                    Broadcast your wedding live to remote family &amp; friends around the world.
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    localStorage.setItem('wedding_live_stream_url', adminStreamUrl.trim())
+                    localStorage.setItem('wedding_is_live_active', adminIsLive ? 'true' : 'false')
+                    window.dispatchEvent(new Event('live_stream_updated'))
+                    setLiveSaveSuccess(true)
+                    setTimeout(() => setLiveSaveSuccess(false), 3000)
+                  }}
+                  className="space-y-4"
+                >
+                  {/* Toggle Is Live */}
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-gold/10 border border-gold/30">
+                    <div>
+                      <p className="font-display font-bold text-xs text-[#3d0808]">
+                        Live Broadcast Status
+                      </p>
+                      <p className="text-[11px] text-[#7a4a4a]">
+                        {adminIsLive ? '🔴 Currently marked as LIVE NOW' : '⏳ Currently in Upcoming / Countdown state'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setAdminIsLive(!adminIsLive)}
+                      className={`px-4 py-2 rounded-full text-xs font-display font-bold transition-all ${
+                        adminIsLive
+                          ? 'bg-red-600 text-white shadow-md'
+                          : 'bg-neutral-200 text-neutral-700'
+                      }`}
+                    >
+                      {adminIsLive ? '🔴 Marked LIVE' : '⏳ Marked OFFLINE'}
+                    </button>
+                  </div>
+
+                  {/* Stream URL Input */}
+                  <div>
+                    <label className="font-display text-crimson-dark text-[10px] uppercase tracking-wider block mb-1 font-bold">
+                      YouTube Live / Stream Video Link
+                    </label>
+                    <input
+                      type="url"
+                      value={adminStreamUrl}
+                      onChange={(e) => setAdminStreamUrl(e.target.value)}
+                      placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                      className="w-full rounded-xl px-4 py-2.5 font-body text-xs sm:text-sm text-[#1c0a0a] bg-[#fdfaf2] border border-gold/40 focus:outline-none focus:border-crimson"
+                      required
+                    />
+                    <p className="text-[10px] text-gold-dark mt-1 italic">
+                      Paste the YouTube Live share link, video link, or live embed URL.
+                    </p>
+                  </div>
+
+                  {liveSaveSuccess && (
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold text-center animate-fade-in">
+                      ✓ Live Stream Settings Updated! The public website is now synchronized.
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-full font-display text-xs uppercase tracking-widest font-bold text-[#3a0505] bg-gradient-to-r from-gold via-gold-bright to-gold hover:brightness-110 shadow-md transition-all active:scale-95"
+                  >
+                    Save &amp; Update Live Mandapam Webcast
+                  </button>
+                </form>
               </div>
             )}
 

@@ -432,6 +432,18 @@ export const weddingData: WeddingSiteConfig = {
     te: 'కుటుంబ సభ్యులు మరియు బంధుమిత్రుల హృదయపూర్వక అభినందనలతో...',
   },
 
+  liveStream: {
+    isLive: false,
+    titleEn: 'Live Kalyanam Mandapam Webcast',
+    titleTe: 'కళ్యాణ మహోత్సవ ప్రత్యక్ష ప్రసారం',
+    streamUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    platform: 'youtube',
+    startTimeEn: 'Tomorrow, Saturday 22nd August 2026 at 7:00 PM IST',
+    startTimeTe: 'శనివారం రాత్రి 7:00 గంటల నుండి ప్రత్యక్ష ప్రసారం',
+    descriptionEn: 'Witness the sacred Telugu Sumuhurtham of Mohan Praneeth & Leepika live from I Conventions, Hyderabad.',
+    descriptionTe: 'హైదరాబాద్ వివాహ వేదిక నుండి శ్రీ మోహన్ ప్రణీత్ & లీపికల సుముహూర్త పవిత్ర ఘట్టాన్ని ప్రత్యక్షంగా తిలకించండి.',
+  },
+
   socialShare: {
     whatsappInvitationText: (url: string) =>
       `🌸 శ్రీరస్తు · శుభమస్తు · అవిఘ్నమస్తు 🌸\n\nతురుపాడ వారి పెండ్లి పిలుపు\nమోహన్ ప్రణీత్ & లీపిక ల వివాహ మహోత్సవం\n📅 తేది: 22-08-2026 రాత్రి 11:59 ని॥లకు\n📍 వేదిక: ఐ కన్వెన్షన్స్, చందానగర్, హైదరాబాద్\n\nడిజిటల్ శుభలేఖ & RSVP ఇక్కడ చూడండి:\n${url}`,

@@ -21,6 +21,7 @@ export function NavBar() {
     { id: 'rituals', label: 'Traditions' },
     { id: 'invitation', label: 'Shubhlekha' },
     { id: 'events', label: 'Ceremonies' },
+    { id: 'live', label: '🔴 Live' },
     { id: 'venues', label: 'Venues' },
     { id: 'gallery', label: 'Moments' },
     { id: 'wishes', label: 'Blessings' },

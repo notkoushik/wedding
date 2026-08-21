@@ -6,6 +6,7 @@ import { MusicPlayer } from './components/hero/MusicPlayer'
 import { TeluguRitualsSection } from './components/rituals/TeluguRitualsSection'
 import { InvitationSection } from './components/invitation/InvitationSection'
 import { EventsSection } from './components/events/EventsSection'
+import { LiveMandapamSection } from './components/live/LiveMandapamSection'
 import { VenuesSection } from './components/venues/VenuesSection'
 import { GallerySection } from './components/gallery/GallerySection'
 import { WishesWall } from './components/wishes/WishesWall'
@@ -67,6 +68,9 @@ export default function App() {
 
       {/* Milestone Events & Muhurtham Schedule */}
       <EventsSection />
+
+      {/* 🔴 Live Mandapam & Virtual Kalyanam Webcast */}
+      <LiveMandapamSection />
 
       {/* Venues & Live Navigation */}
       <VenuesSection />

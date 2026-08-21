@@ -133,6 +133,18 @@ export interface WishItem {
   likes: number
 }
 
+export interface LiveStreamConfig {
+  isLive: boolean
+  titleEn: string
+  titleTe: string
+  streamUrl: string
+  platform: 'youtube' | 'zoom' | 'facebook' | 'custom'
+  startTimeEn: string
+  startTimeTe: string
+  descriptionEn: string
+  descriptionTe: string
+}
+
 export interface WeddingSiteConfig {
   couple: {
     groom: PersonDetails
@@ -160,9 +172,10 @@ export interface WeddingSiteConfig {
   playlist: AudioTrack[]
   initialWishes: WishItem[]
   compliments: {
-    en: string
     te: string
+    en: string
   }
+  liveStream?: LiveStreamConfig
   socialShare: {
     whatsappInvitationText: (url: string) => string
     whatsappGeneralText: (url: string) => string
