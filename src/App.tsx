@@ -12,6 +12,7 @@ import { WishesWall } from './components/wishes/WishesWall'
 import { RsvpSection } from './components/rsvp/RsvpSection'
 import { Footer } from './components/common/Footer'
 import { AdminDashboard } from './components/admin/AdminDashboard'
+import { AccessibilityBar } from './components/common/AccessibilityBar'
 import { PetalShower } from './components/common/PetalShower'
 
 export default function App() {
@@ -39,6 +40,9 @@ export default function App() {
     <div className="min-h-screen bg-ivory font-body text-[#1c0a0a] selection:bg-gold selection:text-white pb-14 lg:pb-0">
       {/* Fixed Luxury Desktop & Mobile Header Navigation */}
       <NavBar />
+
+      {/* Quick Accessibility & Elder Font Clarity Tools */}
+      <AccessibilityBar />
 
       {/* Sticky Mobile Quick-Action Dock (RSVP, Maps, WhatsApp, Shubhlekha) */}
       <MobileBottomBar />

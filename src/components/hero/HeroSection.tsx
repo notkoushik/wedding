@@ -196,56 +196,43 @@ export function HeroSection() {
           )}
         </div>
 
-        {/* ── Countdown Timer ── */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 pt-1">
-          {[
-            { val: t.days, label: 'Days', labelTe: 'రోజులు' },
-            { val: t.hours, label: 'Hrs', labelTe: 'గంటలు' },
-            { val: t.minutes, label: 'Mins', labelTe: 'నిమిషాలు' },
-            { val: t.seconds, label: 'Secs', labelTe: 'సెకన్లు' },
-          ].map(({ val, label, labelTe }, i) => (
-            <div key={label} className="flex items-center gap-2 sm:gap-3">
-              {i > 0 && (
-                <span
-                  className="text-xl font-light -mt-5"
-                  style={{ color: 'rgba(155,123,27,0.35)' }}
-                >
-                  :
-                </span>
-              )}
-              <div className="flex flex-col items-center gap-1">
-                <div
-                  className="w-13 sm:w-15 h-13 sm:h-15 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: 'rgba(255,255,255,0.7)',
-                    border: '1px solid rgba(155,123,27,0.25)',
-                    boxShadow: '0 2px 12px rgba(155,123,27,0.08)',
-                    width: '52px',
-                    height: '52px',
-                  }}
-                >
-                  <span
-                    className="font-display font-bold text-xl sm:text-2xl tabular-nums"
-                    style={{ color: '#5c0a0a' }}
-                  >
-                    {String(val).padStart(2, '0')}
+        {/* ── Ornate 24K Gold Royal Sundial Countdown Clock ── */}
+        <div className="relative p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-[#fffef9] to-[#fbf2de] border-2 border-gold/60 shadow-xl w-full max-w-lg mx-auto">
+          <div className="flex items-center justify-center gap-2 mb-3 text-gold-dark text-[11px] font-display uppercase tracking-widest font-bold">
+            <span>🪔</span>
+            <span>Auspicious Sumuhurtham Countdown</span>
+            <span>🪔</span>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
+            {[
+              { val: t.days, label: 'Days', labelTe: 'రోజులు' },
+              { val: t.hours, label: 'Hours', labelTe: 'గంటలు' },
+              { val: t.minutes, label: 'Mins', labelTe: 'నిమిషాలు' },
+              { val: t.seconds, label: 'Secs', labelTe: 'సెకన్లు' },
+            ].map(({ val, label, labelTe }, i) => (
+              <div key={label} className="flex items-center gap-2 sm:gap-4">
+                {i > 0 && (
+                  <span className="text-xl sm:text-2xl font-bold text-gold-dark/40 -mt-5">
+                    :
                   </span>
+                )}
+                <div className="flex flex-col items-center">
+                  <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-b from-white via-[#fffaf0] to-[#faebd0] border-2 border-gold/50 shadow-md">
+                    <span className="font-display font-bold text-2xl sm:text-3xl tabular-nums text-crimson">
+                      {String(val).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <p className="font-display text-[10px] uppercase tracking-wider text-gold-dark font-bold mt-1.5">
+                    {label}
+                  </p>
+                  <p className="font-telugu text-[9px] text-[#7a4a4a]">
+                    {labelTe}
+                  </p>
                 </div>
-                <p
-                  className="font-display text-[9px] sm:text-[10px] uppercase tracking-widest"
-                  style={{ color: 'rgba(155,123,27,0.55)' }}
-                >
-                  {label}
-                </p>
-                <p
-                  className="font-telugu text-[8px]"
-                  style={{ color: 'rgba(92,10,10,0.4)' }}
-                >
-                  {labelTe}
-                </p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* ── Action Buttons ── */}
