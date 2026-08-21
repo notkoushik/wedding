@@ -39,9 +39,15 @@ export function MusicPlayer({ customAlbumCover }: MusicPlayerProps) {
     audio.addEventListener('loadedmetadata', () => setDuration(audio.duration))
     audio.addEventListener('ended', handleTrackEnded)
 
-    audioRef.current = audio
+    const handleStartMusic = () => {
+      if (audioRef.current) {
+        audioRef.current.play().catch(() => {})
+      }
+    }
+    window.addEventListener('start_wedding_music', handleStartMusic)
 
     return () => {
+      window.removeEventListener('start_wedding_music', handleStartMusic)
       audio.pause()
       audio.src = ''
     }

@@ -14,6 +14,7 @@ import { Footer } from './components/common/Footer'
 import { AdminDashboard } from './components/admin/AdminDashboard'
 import { AccessibilityBar } from './components/common/AccessibilityBar'
 import { PetalShower } from './components/common/PetalShower'
+import { GrandEntrance } from './components/common/GrandEntrance'
 
 export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
@@ -38,6 +39,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-ivory font-body text-[#1c0a0a] selection:bg-gold selection:text-white pb-14 lg:pb-0">
+      {/* 🏰 Grand Royal Palace Entrance & Curtain Reveal Loader */}
+      <GrandEntrance />
+
       {/* Fixed Luxury Desktop & Mobile Header Navigation */}
       <NavBar />
 

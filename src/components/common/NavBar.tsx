@@ -93,10 +93,31 @@ export function NavBar() {
           >
             RSVP
           </button>
+
+          {/* Replay Grand Entrance */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('replay_grand_entrance'))
+            }}
+            className="p-1.5 rounded-full hover:bg-gold/15 text-gold-dark text-sm transition-transform hover:scale-110"
+            title="Replay Grand Palace Entrance (ద్వార దర్శనం)"
+          >
+            🏰
+          </button>
         </div>
 
         {/* ── 4. Mobile Header Buttons ── */}
         <div className="flex items-center gap-2 lg:hidden">
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('replay_grand_entrance'))
+            }}
+            className="p-1 text-gold-dark text-base"
+            title="Replay Entrance"
+          >
+            🏰
+          </button>
+
           <button
             onClick={() => go('rsvp')}
             className="px-3.5 py-1.5 rounded-full font-display text-[10px] uppercase tracking-wider text-[#3a0505] font-bold shadow-sm"
@@ -147,6 +168,16 @@ export function NavBar() {
               {l.label}
             </button>
           ))}
+          <button
+            onClick={() => {
+              setOpen(false)
+              window.dispatchEvent(new CustomEvent('replay_grand_entrance'))
+            }}
+            className="block w-full text-left font-display text-xs uppercase tracking-[0.2em] text-gold-dark font-bold hover:text-crimson py-2.5 flex items-center gap-2"
+          >
+            <span>🏰</span>
+            <span>Replay Grand Entrance (ద్వార దర్శనం)</span>
+          </button>
         </div>
       )}
     </nav>
