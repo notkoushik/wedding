@@ -48,6 +48,19 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
   })
   const [liveSaveSuccess, setLiveSaveSuccess] = useState(false)
 
+  // Font Scaling / Readability
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xlarge'>('normal')
+  useEffect(() => {
+    const root = document.documentElement
+    if (fontSize === 'large') {
+      root.style.fontSize = '17.5px'
+    } else if (fontSize === 'xlarge') {
+      root.style.fontSize = '19px'
+    } else {
+      root.style.fontSize = '16px'
+    }
+  }, [fontSize])
+
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null)
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null)
@@ -361,6 +374,24 @@ export function AdminDashboard({ isOpen, onClose }: AdminDashboardProps) {
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Text Zoom Pill for Elders */}
+                <div className="flex items-center gap-1 bg-gold/10 p-1 rounded-full border border-gold/30">
+                  <span className="text-[10px] text-gold-dark font-display font-semibold pl-2 pr-1">Text Zoom:</span>
+                  {(['normal', 'large', 'xlarge'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      onClick={() => setFontSize(sz)}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-display font-bold transition-all ${
+                        fontSize === sz
+                          ? 'bg-crimson text-gold-light shadow-xs'
+                          : 'text-[#5c0a0a] hover:bg-gold/20'
+                      }`}
+                    >
+                      {sz === 'normal' ? 'A' : sz === 'large' ? 'A+' : 'A++'}
+                    </button>
+                  ))}
+                </div>
+
                 <button
                   onClick={loadAdminData}
                   disabled={loading}

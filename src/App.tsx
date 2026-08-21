@@ -12,7 +12,6 @@ import { GallerySection } from './components/gallery/GallerySection'
 import { WishesWall } from './components/wishes/WishesWall'
 import { Footer } from './components/common/Footer'
 import { AdminDashboard } from './components/admin/AdminDashboard'
-import { AccessibilityBar } from './components/common/AccessibilityBar'
 import { PetalShower } from './components/common/PetalShower'
 import { GrandEntrance } from './components/common/GrandEntrance'
 
@@ -45,10 +44,7 @@ export default function App() {
       {/* Fixed Luxury Desktop & Mobile Header Navigation */}
       <NavBar />
 
-      {/* Quick Accessibility & Elder Font Clarity Tools */}
-      <AccessibilityBar />
-
-      {/* Sticky Mobile Quick-Action Dock (RSVP, Maps, WhatsApp, Shubhlekha) */}
+      {/* Sticky Mobile Quick-Action Dock (Blessings, Maps, Photos, Shubhlekha) */}
       <MobileBottomBar />
 
       {/* Floating Traditional Ambient Music Player */}
