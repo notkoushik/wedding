@@ -26,7 +26,7 @@ function useInView(threshold = 0.1) {
 
 export function GallerySection() {
   const [ref, visible] = useInView()
-  const [lightbox, setLightbox] = useState<string | null>(null)
+  const [lightbox, setLightbox] = useState<GuestPhotoItem | null>(null)
 
   // Guest Photos Stream
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoItem[]>([])
@@ -161,7 +161,7 @@ export function GallerySection() {
             </div>
 
             {/* Scrollable Gallery Wall Canvas (Restricted max-height with custom golden scrollbar) */}
-            <div className="max-h-[580px] sm:max-h-[660px] overflow-y-auto pr-2 sm:pr-3 custom-gold-scrollbar">
+            <div className="max-h-[580px] sm:max-h-[680px] overflow-y-auto pr-2 sm:pr-3 custom-gold-scrollbar">
               
               {allDisplayPhotos.length === 0 ? (
                 <div className="text-center py-16 space-y-4 my-auto">
@@ -184,81 +184,106 @@ export function GallerySection() {
                   </button>
                 </div>
               ) : (
+                /* Dynamic Wall Grid with varied Portrait & Landscape Frames */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 py-2">
-                  {allDisplayPhotos.map((item, index) => (
-                    <div
-                      key={item.id || index}
-                      className="group relative transition-all duration-300 hover:-translate-y-1.5"
-                    >
-                      {/* 🖼️ Luxury Wall Picture Frame Styling */}
+                  {allDisplayPhotos.map((item, index) => {
+                    // Alternate between Landscape, Portrait, and Square Frame Ratios
+                    const frameRatio =
+                      index % 3 === 0
+                        ? 'aspect-[4/3]' // Landscape
+                        : index % 3 === 1
+                        ? 'aspect-[3/4]' // Portrait
+                        : 'aspect-square' // Classic Square
+
+                    return (
                       <div
-                        className="relative bg-white rounded-2xl p-2.5 sm:p-3 border-[6px] sm:border-[7px] border-[#4a0808] transition-all duration-300 group-hover:border-[#380505] flex flex-col justify-between"
-                        style={{
-                          boxShadow:
-                            '0 12px 28px rgba(61, 8, 8, 0.18), 0 4px 10px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 215, 0, 0.7)',
-                        }}
+                        key={item.id || index}
+                        className="group relative transition-all duration-300 hover:-translate-y-1.5"
                       >
-                        {/* Top Hanging Brass Pin */}
-                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-tr from-[#c9a84c] to-[#ffd700] border border-[#3d0808] shadow-md z-10" />
-
-                        {/* Inner Picture Matting (Passe-partout) */}
+                        {/* 🖼️ Luxury Wall Picture Frame Styling */}
                         <div
-                          className="relative aspect-square w-full rounded-xl overflow-hidden cursor-pointer bg-[#fdfaf2] border border-gold/30 shadow-inner group"
-                          onClick={() => setLightbox(item.photo_url)}
+                          className="relative bg-white rounded-2xl p-2.5 sm:p-3 border-[6px] sm:border-[7px] border-[#4a0808] transition-all duration-300 group-hover:border-[#380505] flex flex-col justify-between"
+                          style={{
+                            boxShadow:
+                              '0 12px 28px rgba(61, 8, 8, 0.18), 0 4px 10px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 215, 0, 0.7)',
+                          }}
                         >
-                          <img
-                            src={item.photo_url}
-                            alt={item.caption || item.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                            loading="lazy"
-                          />
+                          {/* Top Hanging Brass Pin */}
+                          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-tr from-[#c9a84c] to-[#ffd700] border border-[#3d0808] shadow-md z-10" />
 
-                          {/* Hover View Magnifier Overlay */}
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <span className="px-3 py-1 rounded-full bg-gold text-[#3a0505] font-display text-[11px] font-bold shadow-lg">
-                              🔍 View Full Photo
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Bottom Brass Engraved Plaque Label */}
-                        <div className="mt-3 pt-2.5 border-t border-gold/30 flex items-center justify-between">
-                          <div className="min-w-0 pr-2">
-                            <p className="font-display font-bold text-crimson text-xs sm:text-sm truncate">
-                              {item.name}
-                            </p>
-                            {item.caption && (
-                              <p className="font-body text-[11px] text-[#5c0a0a] line-clamp-1 italic">
-                                "{item.caption}"
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Like Reaction Button */}
-                          <button
-                            onClick={() => handleLike(item.id)}
-                            className={`px-2 py-1 rounded-full text-xs font-display font-semibold transition-all active:scale-90 flex items-center gap-1 shrink-0 ${
-                              likedPhotoIds.has(item.id)
-                                ? 'bg-red-50 text-crimson border border-red-200'
-                                : 'text-[#7a4a4a] hover:text-crimson hover:bg-gold/10'
-                            }`}
-                            title="Love this photo"
+                          {/* Inner Picture Matting (Passe-partout) with dynamic aspect ratio */}
+                          <div
+                            className={`relative ${frameRatio} w-full rounded-xl overflow-hidden cursor-pointer bg-[#fdfaf2] border border-gold/30 shadow-inner group`}
+                            onClick={() => setLightbox(item)}
                           >
-                            <span>{likedPhotoIds.has(item.id) ? '❤️' : '🤍'}</span>
-                            <span className="text-[11px] font-bold">{item.likes || 1}</span>
-                          </button>
-                        </div>
+                            <img
+                              src={item.photo_url}
+                              alt={item.caption || item.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                              loading="lazy"
+                            />
 
+                            {/* Hover View Magnifier Overlay */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                              <span className="px-3 py-1 rounded-full bg-gold text-[#3a0505] font-display text-[11px] font-bold shadow-lg">
+                                🔍 View Photo
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Bottom Brass Engraved Plaque Label */}
+                          <div className="mt-3 pt-2.5 border-t border-gold/30 flex items-center justify-between">
+                            <div className="min-w-0 pr-2">
+                              <p className="font-display font-bold text-crimson text-xs sm:text-sm truncate">
+                                {item.name}
+                              </p>
+                              {item.caption && (
+                                <p className="font-body text-[11px] text-[#5c0a0a] line-clamp-1 italic">
+                                  "{item.caption}"
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Actions: Download & Like Reaction */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <a
+                                href={item.photo_url}
+                                download={`wedding_photo_${item.name.replace(/\s+/g, '_')}.webp`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1 rounded-md text-gold-dark hover:text-crimson hover:bg-gold/15 transition-all text-xs font-bold"
+                                title="Download high resolution photo"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                ⬇
+                              </a>
+
+                              <button
+                                onClick={() => handleLike(item.id)}
+                                className={`px-2 py-1 rounded-full text-xs font-display font-semibold transition-all active:scale-90 flex items-center gap-1 ${
+                                  likedPhotoIds.has(item.id)
+                                    ? 'bg-red-50 text-crimson border border-red-200'
+                                    : 'text-[#7a4a4a] hover:text-crimson hover:bg-gold/10'
+                                }`}
+                                title="Love this photo"
+                              >
+                                <span>{likedPhotoIds.has(item.id) ? '❤️' : '🤍'}</span>
+                                <span className="text-[11px] font-bold">{item.likes || 1}</span>
+                              </button>
+                            </div>
+                          </div>
+
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
 
             </div>
 
             {/* Bottom Subtle Scroll Hint if many photos */}
-            {allDisplayPhotos.length > 6 && (
+            {allDisplayPhotos.length > 4 && (
               <div className="mt-4 pt-2 border-t border-gold/20 text-center">
                 <p className="text-[11px] font-display text-[#7a4a4a] italic flex items-center justify-center gap-1">
                   <span>↕ Scroll inside this frame to view all memories</span>
@@ -271,24 +296,54 @@ export function GallerySection() {
         </div>
       </div>
 
-      {/* ── Lightbox Modal ── */}
+      {/* ── Lightbox Modal with Download Button ── */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md cursor-pointer"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md cursor-pointer"
           onClick={() => setLightbox(null)}
         >
-          <div className="relative max-w-4xl max-h-[90vh] w-full flex items-center justify-center">
-            <img
-              src={lightbox}
-              alt="Expanded view"
-              className="max-w-full max-h-[85vh] object-contain rounded-2xl border-2 border-gold shadow-2xl"
-            />
-            <button
-              onClick={() => setLightbox(null)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-crimson text-white font-bold flex items-center justify-center text-sm shadow-lg hover:bg-crimson-dark"
-            >
-              ✕
-            </button>
+          <div
+            className="relative max-w-4xl max-h-[92vh] w-full flex flex-col items-center justify-center p-2 cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative border-4 border-gold rounded-2xl overflow-hidden shadow-2xl bg-black">
+              <img
+                src={lightbox.photo_url}
+                alt={lightbox.name}
+                className="max-w-full max-h-[75vh] object-contain mx-auto"
+              />
+            </div>
+
+            {/* Photo Info Bar & Download Button */}
+            <div className="mt-3 w-full max-w-lg bg-[#240303]/90 border border-gold/60 rounded-2xl p-3 px-4 flex items-center justify-between text-white shadow-xl backdrop-blur-md">
+              <div>
+                <p className="font-display font-bold text-gold-light text-sm">{lightbox.name}</p>
+                {lightbox.caption && (
+                  <p className="font-body text-xs text-parchment/80 italic line-clamp-1">
+                    "{lightbox.caption}"
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={lightbox.photo_url}
+                  download={`wedding_photo_${lightbox.name.replace(/\s+/g, '_')}.webp`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-1.5 rounded-full bg-gradient-to-r from-gold via-gold-light to-gold text-[#3a0505] font-display text-xs font-bold hover:brightness-110 shadow-md flex items-center gap-1.5"
+                >
+                  <span>⬇</span>
+                  <span>Download</span>
+                </a>
+                <button
+                  onClick={() => setLightbox(null)}
+                  className="w-8 h-8 rounded-full bg-crimson text-white font-bold flex items-center justify-center hover:bg-crimson-dark text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

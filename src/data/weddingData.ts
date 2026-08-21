@@ -5,8 +5,10 @@ import originalCardImg from '../../Card/a45d3dae-4b4b-4761-ace0-49c629b52d58.png
 
 import gorentakuImg from '../assets/aestatics/gorentaku.jpg'
 import vrathamImg from '../assets/aestatics/vratham.jpg'
+import kanyadanamImg from '../assets/aestatics/kalysdhanam.jpg'
 import eadurukoluImg from '../assets/aestatics/eadurukolu.jpg'
 import jeelakarraBellamImg from '../assets/aestatics/Jeelakarra Bellam.jpg'
+import mangalyadharanaImg from '../assets/aestatics/mangalyadharana.jpg'
 import varamaluImg from '../assets/aestatics/varamalu.jpg'
 import thalambraluImg from '../assets/aestatics/thalambraly.jpg'
 import sapthipadhiImg from '../assets/aestatics/sapthipadhi.jpg'
@@ -212,8 +214,30 @@ export const weddingData: WeddingSiteConfig = {
       image: vrathamImg,
     },
     {
-      id: 'eadurukolu',
+      id: 'kanyadanam',
       number: '03',
+      titleTelugu: 'కన్యాదానం',
+      titleEnglish: 'Kanyadanam — The Sacred Entrusting of the Bride',
+      shloka: 'కన్యాం విష్ణురూపాయ వరాయ ప్రతిపాదయే · బ్రహ్మలోక సమన్వితః',
+      significanceTelugu:
+        'తల్లిదండ్రులు తమ అపురూపమైన పుత్రికను శ్రీమహావిష్ణువు స్వరూపంగా భావించే వరుడి చేతిలో ఉంచి, ధర్మ, అర్థ, కామాలలో జీవితాంతం తోడుగా ఉంటానని ప్రమాణం చేయించుకునే పరమ పవిత్రమైన ఘట్టం. ఇది హిందూ సంస్కృతిలో అత్యున్నత దానంగా పూజింపబడుతుంది.',
+      significanceEnglish:
+        'The most emotional and spiritually profound ritual in Hindu matrimony. The parents place the bride’s hands into the groom’s hands over a sacred coconut and betel leaves with holy water, viewing the groom as an embodiment of Lord Vishnu. The groom vows to protect, cherish, and uphold her in Dharma (duty), Artha (prosperity), and Kama (love) for all lifetimes.',
+      culturalDetailsTelugu: [
+        'సనాతన ధర్మంలో అత్యంత మహోన్నతమైన, పుణ్యప్రదమైన దానంగా భావించే మహోత్సవం',
+        'తల్లిదండ్రుల ఆశీస్సులతో నూతన దాంపత్యానికి శ్రీకారం చుట్టే వేళ',
+        'ధర్మార్థ కామేషు నాతిచరామి అని వరుడు పెద్దల సమక్షంలో చేసే పవిత్ర ప్రమాణం',
+      ],
+      culturalDetailsEnglish: [
+        'Regarded in Vedic scriptures as the highest and most selfless act of parental love and devotion',
+        'The groom solemnly pledges to cherish her as an equal partner throughout life',
+        'Blessings showered with sacred Mantrams for an auspicious and prosperous future',
+      ],
+      image: kanyadanamImg,
+    },
+    {
+      id: 'eadurukolu',
+      number: '04',
       titleTelugu: 'ఎదురుకోలు',
       titleEnglish: 'Edurukolu — The Grand Welcoming',
       shloka: 'అతిథి దేవో భవ · సాదర సంభాషణ',
@@ -235,7 +259,7 @@ export const weddingData: WeddingSiteConfig = {
     },
     {
       id: 'jeelakarra-bellam',
-      number: '04',
+      number: '05',
       titleTelugu: 'జీలకర్ర బెల్లం',
       titleEnglish: 'Jeelakarra Bellam — The Crown Sumuhurtham Moment',
       shloka: 'సుముహూర్తే సావధాన · చిరంజీవ సుఖీభవ',
@@ -256,8 +280,30 @@ export const weddingData: WeddingSiteConfig = {
       image: jeelakarraBellamImg,
     },
     {
+      id: 'mangalyadharana',
+      number: '06',
+      titleTelugu: 'మాంగళ్యధారణ',
+      titleEnglish: 'Mangalya Dharana — The Sacred Golden Sutram & Three Knots',
+      shloka: 'మాంగల్యం తంతునానేనా మమజీవన హేతునా · కంఠే బధ్నామి శుభగే త్వం జీవ శరదాం శతమ్',
+      significanceTelugu:
+        'తెలుగు వివాహంలో అత్యంత దివ్యమైన, కీలకమైన ఘట్టం. వరుడు పసుపు తాడులో కోర్చిన రెండు బంగారు సూత్రాలను (తాళిబొట్లు - పుట్టినిల్లు, మెట్టినిల్లు యొక్క చిహ్నాలు) వధువు మెడలో మూడు ముళ్ళు (మనసా, వాచా, కర్మణా) వేస్తాడు. ఇది వధూవరుల మధ్య శాశ్వత ప్రేమ, రక్షణ, మరియు నూరేళ్ళ సంపూర్ణ ఆయురారోగ్యాలకు సాక్ష్యంగా నిలుస్తుంది.',
+      significanceEnglish:
+        'The supreme sanctification of Hindu marriage! The groom ties the sacred Mangalasutram—a turmeric-infused cord holding two auspicious golden discs (representing both the paternal home and the marital home)—around the bride’s neck with three sacred knots (signifying unity in Thought, Word, and Deed). Accompanied by the resounding chorus of Vedic chants, Shehnai, and Akshintalu showered by elders, this holy cord bestows auspiciousness, divine protection, and a vow of 100 years of blissful togetherness.',
+      culturalDetailsTelugu: [
+        'సనాతన హిందూ సంస్కృతిలో దాంపత్య సౌభాగ్యానికి, మంగళానికి అత్యున్నత ప్రతీక',
+        'పుట్టినింటి-మెట్టినింటి అనుబంధాలను కలిపి ఉంచే రెండు పవిత్ర సువర్ణ సూత్రాలు',
+        'పెద్దల ఆశీర్వచనాలతో, మంత్రోచ్ఛారణల నడుమ జరిగే అత్యంత భావోద్వేగ భరిత క్షణం',
+      ],
+      culturalDetailsEnglish: [
+        'The three knots (Brahma, Vishnu, Maheshwara) symbolize eternal dedication through mind, speech, and action',
+        'The two gold discs unite the legacy, values, and blessings of both families forever',
+        'Performed amidst resounding Nadaswaram notes and showering of golden Akshintalu from all loved ones',
+      ],
+      image: mangalyadharanaImg,
+    },
+    {
       id: 'varamalu',
-      number: '05',
+      number: '07',
       titleTelugu: 'వరమాల',
       titleEnglish: 'Varamala — Exchange of Floral Garlands',
       shloka: 'సమగ్ర హృదయైక్యమ్ · పరస్పర వరణం',
@@ -279,7 +325,7 @@ export const weddingData: WeddingSiteConfig = {
     },
     {
       id: 'thalambralu',
-      number: '06',
+      number: '08',
       titleTelugu: 'తలంబ్రాలు',
       titleEnglish: 'Talambralu — Sacred Shower of Pearls & Turmeric',
       shloka: 'ధాన్య లక్ష్మీ ప్రసన్నాస్తు · ఆనంద వర్షం',
@@ -301,7 +347,7 @@ export const weddingData: WeddingSiteConfig = {
     },
     {
       id: 'sapthipadhi',
-      number: '07',
+      number: '09',
       titleTelugu: 'సప్తపది',
       titleEnglish: 'Saptapadi — Seven Sacred Steps Around Agni',
       shloka: 'సఖా సప్తపదా భవ · సఖ్యంతే గమేయమ్',
@@ -323,83 +369,14 @@ export const weddingData: WeddingSiteConfig = {
     },
   ],
 
-  gallery: [
-    {
-      url: coupleImg,
-      title: 'Mohan & Leepika',
-      alt: 'Mohan Praneeth and Leepika in wedding attire',
-      tall: true,
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1587271598589-3f91d0872f66?w=800&h=600&fit=crop&auto=format',
-      title: 'Bridal Grace',
-      alt: 'Bride in red and gold traditional silk attire',
-      tall: false,
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1630764883473-e8c2056f0589?w=800&h=600&fit=crop&auto=format',
-      title: 'Sacred Havan',
-      alt: 'Sacred fire ritual at Hindu ceremony',
-      tall: false,
-    },
-    {
-      url: 'https://images.unsplash.com/flagged/photo-1570055349452-29232699cc63?w=900&h=1200&fit=crop&auto=format',
-      title: 'Royal Ornaments',
-      alt: 'Exquisite gold bridal jewellery and temple motifs',
-      tall: true,
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1607512566084-a20ed291d623?w=800&h=600&fit=crop&auto=format',
-      title: 'Festive Marigolds',
-      alt: 'Traditional marigold flowers and decorations',
-      tall: false,
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2?w=900&h=1200&fit=crop&auto=format',
-      title: 'Divine Rituals',
-      alt: 'Couple performing sacred wedding ritual under floral canopy',
-      tall: false,
-    },
-  ],
+  gallery: [],
 
   playlist: [
     {
       id: 1,
-      titleTelugu: 'చూట్టమల్లే చూట్టమల్లే',
-      titleEnglish: 'CHUTTAMALLE (DEVARA)',
-      subtitle: '🔥 #1 Instagram Reels Trending Couple Anthem · Anirudh',
-      url: seethaKalyanamAudio,
-      cover: coupleImg,
-    },
-    {
-      id: 2,
-      titleTelugu: 'సూసేకి అగ్గిరవ్వ మాదిరి',
-      titleEnglish: 'SOOSEKI (THE COUPLE SONG)',
-      subtitle: '✨ Viral Wedding Reels Trend · Shreya Ghoshal & DSP',
-      url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=indian-traditional-background-music-112194.mp3',
-      cover: coupleImg,
-    },
-    {
-      id: 3,
-      titleTelugu: 'ఆరాధ్య - నా ప్రాణమే',
-      titleEnglish: 'ARADHYA (KUSHI)',
-      subtitle: '💖 Modern Gen-Z Wedding Love Vibe · Sid Sriram',
-      url: 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_348a735160.mp3?filename=indian-instrumental-music-flute-sitar-tabla-7140.mp3',
-      cover: coupleImg,
-    },
-    {
-      id: 4,
-      titleTelugu: 'ఇంకేం ఇంకేం కావాలే',
-      titleEnglish: 'INKEM INKEM KAAVAALE',
-      subtitle: '🌸 All-Time Favorite Wedding Romance · Geetha Govindam',
-      url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=indian-traditional-background-music-112194.mp3',
-      cover: coupleImg,
-    },
-    {
-      id: 5,
-      titleTelugu: 'శ్రీ సీతారాముల కళ్యాణం',
-      titleEnglish: 'SEETHA KALYANAM',
-      subtitle: '🪔 Sacred Auspicious Sumuhurtham Anthem',
+      titleTelugu: 'శ్రీ సీతారాముల కళ్యాణం చూతము రారండి',
+      titleEnglish: 'SRI SEETHA RAMULA KALYANAM',
+      subtitle: '🪔 Auspicious Kalyana Vaibhogam & Sacred Shehnai',
       url: seethaKalyanamAudio,
       cover: coupleImg,
     },

@@ -87,11 +87,18 @@ export function TeluguRitualsSection() {
                 {/* ── Story Narrative ── */}
                 <div className="w-full md:w-7/12 text-center md:text-left space-y-3">
                   
-                  {/* Special Badge for Jeelakarra Bellam */}
+                  {/* Special Badge for Jeelakarra Bellam & Mangalya Dharana */}
                   {ritual.id === 'jeelakarra-bellam' && (
                     <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#5c0a0a] text-gold-light text-[10px] sm:text-[11px] font-display font-bold uppercase tracking-widest shadow-md">
                       <span>🪔</span>
                       <span>ప్రధాన సుముహూర్త ఘట్టం · Auspicious Climax (11:59 PM)</span>
+                    </div>
+                  )}
+
+                  {ritual.id === 'mangalyadharana' && (
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#3d0808] text-gold-bright text-[10px] sm:text-[11px] font-display font-bold uppercase tracking-widest shadow-md border border-gold/40">
+                      <span>👑</span>
+                      <span>మాంగల్య ధారణ · The Sacred Three Knots of Eternity</span>
                     </div>
                   )}
 
