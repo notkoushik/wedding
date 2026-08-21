@@ -184,99 +184,93 @@ export function GallerySection() {
                   </button>
                 </div>
               ) : (
-                /* Dynamic Wall Grid with varied Portrait & Landscape Frames */
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 py-2">
-                  {allDisplayPhotos.map((item, index) => {
-                    // Alternate between Landscape, Portrait, and Square Frame Ratios
-                    const frameRatio =
-                      index % 3 === 0
-                        ? 'aspect-[4/3]' // Landscape
-                        : index % 3 === 1
-                        ? 'aspect-[3/4]' // Portrait
-                        : 'aspect-square' // Classic Square
-
-                    return (
+                /* Perfect Pixel-Aligned Uniform Wall Grid (Zero Gaps) */
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 py-1">
+                  {allDisplayPhotos.map((item, index) => (
+                    <div
+                      key={item.id || index}
+                      className="group relative transition-all duration-300 hover:-translate-y-1.5 flex flex-col h-full"
+                    >
+                      {/* 🖼️ Luxury Wall Picture Frame Styling */}
                       <div
-                        key={item.id || index}
-                        className="group relative transition-all duration-300 hover:-translate-y-1.5"
+                        className="relative bg-white rounded-2xl p-2.5 sm:p-3 border-[5px] sm:border-[6px] border-[#4a0808] transition-all duration-300 group-hover:border-[#380505] flex flex-col justify-between h-full"
+                        style={{
+                          boxShadow:
+                            '0 10px 24px rgba(61, 8, 8, 0.16), 0 3px 8px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255, 215, 0, 0.7)',
+                        }}
                       >
-                        {/* 🖼️ Luxury Wall Picture Frame Styling */}
+                        {/* Top Hanging Brass Pin */}
+                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-[#c9a84c] to-[#ffd700] border border-[#3d0808] shadow-md z-10" />
+
+                        {/* Inner Picture Matting (Passe-partout) with Perfect Uniform Aspect Ratio */}
                         <div
-                          className="relative bg-white rounded-2xl p-2.5 sm:p-3 border-[6px] sm:border-[7px] border-[#4a0808] transition-all duration-300 group-hover:border-[#380505] flex flex-col justify-between"
-                          style={{
-                            boxShadow:
-                              '0 12px 28px rgba(61, 8, 8, 0.18), 0 4px 10px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 215, 0, 0.7)',
-                          }}
+                          className="relative aspect-[4/3] w-full rounded-xl overflow-hidden cursor-pointer bg-[#fdfaf2] border border-gold/30 shadow-inner group shrink-0"
+                          onClick={() => setLightbox(item)}
                         >
-                          {/* Top Hanging Brass Pin */}
-                          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-gradient-to-tr from-[#c9a84c] to-[#ffd700] border border-[#3d0808] shadow-md z-10" />
+                          <img
+                            src={item.photo_url}
+                            alt={item.caption || item.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                            loading="lazy"
+                          />
 
-                          {/* Inner Picture Matting (Passe-partout) with dynamic aspect ratio */}
-                          <div
-                            className={`relative ${frameRatio} w-full rounded-xl overflow-hidden cursor-pointer bg-[#fdfaf2] border border-gold/30 shadow-inner group`}
-                            onClick={() => setLightbox(item)}
-                          >
-                            <img
-                              src={item.photo_url}
-                              alt={item.caption || item.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                              loading="lazy"
-                            />
-
-                            {/* Hover View Magnifier Overlay */}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-                              <span className="px-3 py-1 rounded-full bg-gold text-[#3a0505] font-display text-[11px] font-bold shadow-lg">
-                                🔍 View Photo
-                              </span>
-                            </div>
+                          {/* Hover View Magnifier Overlay */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                            <span className="px-3 py-1 rounded-full bg-gold text-[#3a0505] font-display text-[11px] font-bold shadow-lg">
+                              🔍 View Photo
+                            </span>
                           </div>
-
-                          {/* Bottom Brass Engraved Plaque Label */}
-                          <div className="mt-3 pt-2.5 border-t border-gold/30 flex items-center justify-between">
-                            <div className="min-w-0 pr-2">
-                              <p className="font-display font-bold text-crimson text-xs sm:text-sm truncate">
-                                {item.name}
-                              </p>
-                              {item.caption && (
-                                <p className="font-body text-[11px] text-[#5c0a0a] line-clamp-1 italic">
-                                  "{item.caption}"
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Actions: Download & Like Reaction */}
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <a
-                                href={item.photo_url}
-                                download={`wedding_photo_${item.name.replace(/\s+/g, '_')}.webp`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1 rounded-md text-gold-dark hover:text-crimson hover:bg-gold/15 transition-all text-xs font-bold"
-                                title="Download high resolution photo"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                ⬇
-                              </a>
-
-                              <button
-                                onClick={() => handleLike(item.id)}
-                                className={`px-2 py-1 rounded-full text-xs font-display font-semibold transition-all active:scale-90 flex items-center gap-1 ${
-                                  likedPhotoIds.has(item.id)
-                                    ? 'bg-red-50 text-crimson border border-red-200'
-                                    : 'text-[#7a4a4a] hover:text-crimson hover:bg-gold/10'
-                                }`}
-                                title="Love this photo"
-                              >
-                                <span>{likedPhotoIds.has(item.id) ? '❤️' : '🤍'}</span>
-                                <span className="text-[11px] font-bold">{item.likes || 1}</span>
-                              </button>
-                            </div>
-                          </div>
-
                         </div>
+
+                        {/* Bottom Brass Engraved Plaque Label (Uniform Alignment) */}
+                        <div className="mt-2.5 pt-2 border-t border-gold/30 flex items-center justify-between min-h-[40px]">
+                          <div className="min-w-0 pr-2 flex-1">
+                            <p className="font-display font-bold text-crimson text-xs sm:text-sm truncate leading-tight">
+                              {item.name}
+                            </p>
+                            {item.caption ? (
+                              <p className="font-body text-[11px] text-[#5c0a0a] truncate italic leading-tight">
+                                "{item.caption}"
+                              </p>
+                            ) : (
+                              <p className="font-body text-[10px] text-gold-dark italic leading-tight">
+                                Wedding Guest Moment
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Actions: Download & Like Reaction */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <a
+                              href={item.photo_url}
+                              download={`wedding_photo_${item.name.replace(/\s+/g, '_')}.webp`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1 rounded-md text-gold-dark hover:text-crimson hover:bg-gold/15 transition-all text-xs font-bold"
+                              title="Download high resolution photo"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              ⬇
+                            </a>
+
+                            <button
+                              onClick={() => handleLike(item.id)}
+                              className={`px-2 py-1 rounded-full text-xs font-display font-semibold transition-all active:scale-90 flex items-center gap-1 ${
+                                likedPhotoIds.has(item.id)
+                                  ? 'bg-red-50 text-crimson border border-red-200'
+                                  : 'text-[#7a4a4a] hover:text-crimson hover:bg-gold/10'
+                              }`}
+                              title="Love this photo"
+                            >
+                              <span>{likedPhotoIds.has(item.id) ? '❤️' : '🤍'}</span>
+                              <span className="text-[11px] font-bold">{item.likes || 1}</span>
+                            </button>
+                          </div>
+                        </div>
+
                       </div>
-                    )
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
 
